@@ -1,102 +1,56 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSlider } from "@/components/HeroSlider";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Users, Trophy, Building, Music, Bus } from "lucide-react";
+import { BookOpen, Users, Trophy, Building, Music, Bus, ChevronDown, ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { mockActivities } from "@/data/mockData";
+import { useState } from "react";
 
 const Index = () => {
-  const stats = [
-    { number: "65%", text: "Students secured 90% and above" },
-    { number: "75%", text: "Average attendance rate" },
-    { number: "70%", text: "Focus on self-expression and emotional needs" }
+  const [currentProgram, setCurrentProgram] = useState(0);
+
+  const features = [
+    { icon: BookOpen, title: "Adoption", description: "Present vestibulum senean noummy endent mauris. Cum socis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus." },
+    { icon: Users, title: "Education", description: "Present vestibulum senean noummy endent mauris. Cum socis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus." },
+    { icon: Trophy, title: "Help & Support", description: "Present vestibulum senean noummy endent mauris. Cum socis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus." },
+    { icon: Music, title: "Volunteering", description: "Present vestibulum senean noummy endent mauris. Cum socis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus." }
   ];
 
-  const facilities = [
-    { icon: BookOpen, title: "Library", description: "Well stocked with over 400 books" },
-    { icon: Trophy, title: "Sports Complex", description: "Facilities for athletics, basketball, volleyball" },
-    { icon: Building, title: "Science & Math Labs", description: "Well equipped for practical learning" },
-    { icon: Music, title: "Music Center", description: "Professional music education" },
-    { icon: Users, title: "Medical Clinic", description: "Air conditioned infirmary for first-aid" },
-    { icon: Bus, title: "Transportation", description: "GPS enabled bus fleet" }
+  const programs = [
+    { title: "ADOPTION, FOSTERING & CHILDREN IN CARE", image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=400&fit=crop" },
+    { title: "DISADVANTAGED YOUNG PEOPLE", image: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=400&h=400&fit=crop" },
+    { title: "MEDIATION & CRISIS SERVICES", image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=400&fit=crop" },
+    { title: "SAFEGUARDING & CONSULTANCY SERVICES", image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=400&h=400&fit=crop" },
+    { title: "SAVE THE EARTH PROGRAMS", image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=400&fit=crop" }
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <HeroSlider />
 
-      {/* About Section */}
-      <section className="py-16 bg-accent">
+      {/* Features Section */}
+      <section className="py-24 relative">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold text-accent-foreground mb-6">About Shiksha Niketan</h2>
-            <p className="text-lg text-accent-foreground/80 leading-relaxed">
-              Our aim is to educate the youth of the world to take their productive place as leaders 
-              in the global community by offering our pupils a comprehensive education from Nursery to 
-              Class 12. We are a caring community where students' needs are a priority and where 
-              traditional Indian and modern Western educational values are respected and encouraged to coexist.
-            </p>
-            <Button className="mt-6" size="lg">Read More</Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Director's Message */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
-            <div>
-              <img
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&h=600&fit=crop"
-                alt="Director"
-                className="rounded-lg shadow-lg"
-              />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold mb-4">Director's Message</h2>
-              <p className="text-muted-foreground mb-4">
-                We are passionate about offering children an exciting, stimulating and rich curriculum, 
-                based on real reasons for learning. We hope that you will share with us the belief that 
-                every child should have the opportunity to meet their potential and develop the academic, 
-                creative, social and spiritual skills that will enable them to fulfill a happy and prosperous life.
-              </p>
-              <p className="font-semibold">— Director</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-5xl font-bold mb-2">{stat.number}</div>
-                <p className="text-lg opacity-90">{stat.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Facilities */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">School Facilities</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {facilities.map((facility, index) => {
-              const Icon = facility.icon;
+          <div className="grid md:grid-cols-4 gap-8 max-w-7xl mx-auto -mt-32 relative z-10">
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
               return (
-                <Card key={index} className="hover:shadow-xl transition-shadow">
-                  <CardHeader>
-                    <Icon className="h-12 w-12 text-secondary mb-4" />
-                    <CardTitle>{facility.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{facility.description}</p>
+                <Card key={index} className="bg-card border-border hover:border-secondary transition-all group">
+                  <CardContent className="pt-12 pb-8 px-6 text-center relative">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-background border-2 border-border group-hover:border-secondary rounded-full p-6 transition-colors">
+                      <Icon className="h-8 w-8 text-foreground" />
+                    </div>
+                    <h3 className="font-bold text-xl mb-4 mt-4 uppercase tracking-wider">{feature.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-6">{feature.description}</p>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-full border border-border hover:border-secondary hover:bg-transparent"
+                    >
+                      <ChevronDown className="h-5 w-5" />
+                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -105,48 +59,137 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Recent Activities */}
-      <section className="py-16 bg-accent">
+      {/* Mission Section */}
+      <section className="py-24 bg-card">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12 text-accent-foreground">Recent Activities</h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {mockActivities.map((activity) => (
-              <Card key={activity.id} className="overflow-hidden hover:shadow-xl transition-shadow">
-                <img
-                  src={activity.image}
-                  alt={activity.title}
-                  className="w-full h-48 object-cover"
-                />
-                <CardHeader>
-                  <CardTitle className="text-xl">{activity.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm mb-2">{activity.description}</p>
-                  <p className="text-xs text-secondary font-semibold">{activity.date}</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="mb-8">
+              <GraduationCap className="h-16 w-16 text-secondary mx-auto mb-4" />
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black mb-8 uppercase tracking-tight">
+              LET'S BUILD THE WORLD WITHOUT CHILD ABUSE AND NEGLECT!
+            </h2>
+            <p className="text-muted-foreground leading-relaxed max-w-4xl mx-auto">
+              Present vestibulum senean noummy endent mauris. Cum socis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus. Nullam. Fusce fringilla sodales mauris et ipsum pretium pede. Duis ultricies rhoncus magna. Orci odio aliquet et at erat. Lorem ipsum dolor sit amet, consetetur adipiscing elit. Mauris fermentum dictum magna. Sed laoreet aliquam leo. Ut tellus dolor, dapibus.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Academic Structure */}
-      <section className="py-16">
+      {/* Programs Carousel */}
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Academic Structure</h2>
-          <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {["Primary School", "Junior School", "Middle School", "Senior School"].map((level, index) => (
-              <Card key={index} className="text-center hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-xl">{level}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-4xl font-bold text-secondary mb-2">{index + 1}</div>
-                  <p className="text-sm text-muted-foreground">Excellence in Education</p>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="relative max-w-6xl mx-auto">
+            <div className="flex items-center justify-center space-x-4 mb-12">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentProgram((prev) => (prev - 1 + programs.length) % programs.length)}
+                className="hover:bg-muted"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </Button>
+              
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                {programs.map((program, index) => {
+                  const offset = (index - currentProgram + programs.length) % programs.length;
+                  const isCenter = offset === 2 || (offset === 0 && programs.length < 5);
+                  
+                  return (
+                    <div
+                      key={index}
+                      className={`transition-all duration-300 ${
+                        isCenter ? 'scale-110 opacity-100' : 'scale-90 opacity-60'
+                      }`}
+                    >
+                      <div className="relative group cursor-pointer">
+                        <img
+                          src={program.image}
+                          alt={program.title}
+                          className="w-32 h-32 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all border-4 border-border"
+                        />
+                        <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <p className="text-white text-xs font-bold text-center px-2">{program.title}</p>
+                        </div>
+                      </div>
+                      {isCenter && (
+                        <p className="text-center text-xs font-bold mt-4 uppercase tracking-wider">{program.title}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentProgram((prev) => (prev + 1) % programs.length)}
+                className="hover:bg-muted"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </Button>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* Campaign Section */}
+      <section className="py-24 bg-gradient-to-r from-card to-background relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <img src="https://images.unsplash.com/photo-1497375573857-5746a3e43e8c?w=1920&h=600&fit=crop" alt="Background" className="w-full h-full object-cover grayscale" />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto items-center">
+            <div>
+              <h2 className="text-6xl md:text-7xl font-black mb-8 uppercase tracking-tight leading-tight">
+                JOIN OUR CAMPAIGN!
+              </h2>
+              <div className="mb-8">
+                <p className="text-secondary font-bold mb-2 uppercase tracking-wider">DONATION SO FAR:</p>
+                <p className="text-6xl font-black text-secondary">$450,000</p>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <p className="text-sm uppercase tracking-wider mb-6">
+                <span className="text-foreground">LAST YEAR </span>
+                <span className="font-black">SHIKSHA NIKETAN</span>
+                <span className="text-foreground"> SUPPORTED PROGRAMS THAT SERVED OVER </span>
+                <span className="font-black">700,000</span>
+                <span className="text-foreground"> CHILDREN IN </span>
+                <span className="font-black">23</span>
+                <span className="text-foreground"> COUNTRIES.</span>
+              </p>
+              <div className="flex flex-col space-y-4">
+                <Button 
+                  variant="outline" 
+                  className="border-2 border-border hover:border-secondary hover:bg-transparent font-bold uppercase tracking-wider py-6"
+                >
+                  <ChevronDown className="mr-2 h-5 w-5" />
+                  VIEW OUR REPORT
+                </Button>
+                <Button 
+                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase tracking-wider py-6"
+                >
+                  <ChevronDown className="mr-2 h-5 w-5" />
+                  JOIN OUR CAMPAIGN
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Donate Section */}
+      <section className="py-24 bg-secondary text-secondary-foreground">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-5xl md:text-6xl font-black mb-6 uppercase tracking-tight">DONATE NOW!</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">Help us continue our mission to provide quality education to every child</p>
+          <Button 
+            size="lg"
+            className="bg-background text-foreground hover:bg-background/90 font-bold uppercase tracking-wider px-12 py-6 text-lg"
+          >
+            MAKE A DONATION
+          </Button>
         </div>
       </section>
 

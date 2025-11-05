@@ -7,22 +7,20 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "Academics", path: "/academics" },
-    { name: "Facilities", path: "/facilities" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Contact", path: "/contact" },
-    { name: "Admin", path: "/admin" },
+    { name: "HOME", path: "/" },
+    { name: "WHO WE ARE", path: "/about" },
+    { name: "WHAT WE DO", path: "/academics" },
+    { name: "NEWS & EVENTS", path: "/gallery" },
+    { name: "CONTACTS", path: "/contact" },
   ];
 
   return (
-    <nav className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-50">
+    <nav className="bg-background/95 backdrop-blur-sm text-foreground shadow-lg sticky top-0 z-50 border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           <NavLink to="/" className="flex items-center space-x-2">
-            <GraduationCap className="h-8 w-8" />
-            <span className="font-bold text-xl">Shiksha Niketan</span>
+            <GraduationCap className="h-8 w-8 text-secondary" />
+            <span className="font-bold text-xl uppercase tracking-wider">Shiksha Niketan</span>
           </NavLink>
 
           {/* Desktop Menu */}
@@ -31,10 +29,11 @@ export const Navbar = () => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-foreground/10 transition-colors"
-                activeClassName="bg-primary-foreground/20"
+                className="px-4 py-2 text-sm font-bold uppercase tracking-wider hover:text-secondary transition-colors relative group"
+                activeClassName="text-secondary"
               >
                 {item.name}
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform"></span>
               </NavLink>
             ))}
           </div>
@@ -57,8 +56,8 @@ export const Navbar = () => {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-primary-foreground/10 transition-colors"
-                activeClassName="bg-primary-foreground/20"
+                className="block px-3 py-3 text-base font-bold uppercase tracking-wider hover:text-secondary transition-colors"
+                activeClassName="text-secondary"
                 onClick={() => setIsOpen(false)}
               >
                 {item.name}

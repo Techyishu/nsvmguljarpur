@@ -1,67 +1,80 @@
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Youtube, GraduationCap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const Footer = () => {
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-card text-card-foreground border-t border-border">
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div>
-            <h3 className="font-bold text-lg mb-4">About School</h3>
-            <p className="text-sm opacity-90">
-              Educating the youth to take their productive place as leaders in the global community through comprehensive education from Nursery to Class 12.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm opacity-90">
-              <li><a href="/about" className="hover:underline">About Us</a></li>
-              <li><a href="/academics" className="hover:underline">Academics</a></li>
-              <li><a href="/facilities" className="hover:underline">Facilities</a></li>
-              <li><a href="/gallery" className="hover:underline">Gallery</a></li>
-              <li><a href="/contact" className="hover:underline">Contact</a></li>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Popular</h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><a href="/about" className="hover:text-secondary transition-colors">About Us</a></li>
+              <li><a href="/academics" className="hover:text-secondary transition-colors">Academics</a></li>
+              <li><a href="/facilities" className="hover:text-secondary transition-colors">Facilities</a></li>
+              <li><a href="/gallery" className="hover:text-secondary transition-colors">Gallery</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4">Contact Info</h3>
-            <ul className="space-y-3 text-sm opacity-90">
-              <li className="flex items-start space-x-2">
-                <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span>School Address, City - 132037</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 flex-shrink-0" />
-                <span>+91-85700 54094</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span>school@example.com</span>
-              </li>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Links</h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><a href="/contact" className="hover:text-secondary transition-colors">Contact Us</a></li>
+              <li><a href="/admin" className="hover:text-secondary transition-colors">Admin Panel</a></li>
+              <li><a href="/" className="hover:text-secondary transition-colors">Home</a></li>
+              <li><a href="/gallery" className="hover:text-secondary transition-colors">News & Events</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <Facebook className="h-6 w-6" />
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <Twitter className="h-6 w-6" />
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <Instagram className="h-6 w-6" />
-              </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
-                <Youtube className="h-6 w-6" />
-              </a>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Projects</h3>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li><a href="/academics" className="hover:text-secondary transition-colors">Primary Education</a></li>
+              <li><a href="/academics" className="hover:text-secondary transition-colors">Secondary Education</a></li>
+              <li><a href="/facilities" className="hover:text-secondary transition-colors">Sports Programs</a></li>
+              <li><a href="/facilities" className="hover:text-secondary transition-colors">Cultural Activities</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Newsletter</h3>
+            <p className="text-sm text-muted-foreground mb-4">Stay updated with our latest news and events</p>
+            <div className="flex flex-col space-y-3">
+              <Input 
+                type="email" 
+                placeholder="Enter your email here" 
+                className="bg-background border-border"
+              />
+              <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase">
+                Subscribe
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-sm opacity-90">
-          <p>&copy; {new Date().getFullYear()} Shiksha Niketan. All rights reserved.</p>
+        <div className="flex justify-center space-x-6 mt-12 mb-8">
+          <a href="#" className="text-muted-foreground hover:text-secondary transition-colors">
+            <Facebook className="h-6 w-6" />
+          </a>
+          <a href="#" className="text-muted-foreground hover:text-secondary transition-colors">
+            <Twitter className="h-6 w-6" />
+          </a>
+          <a href="#" className="text-muted-foreground hover:text-secondary transition-colors">
+            <Instagram className="h-6 w-6" />
+          </a>
+          <a href="#" className="text-muted-foreground hover:text-secondary transition-colors">
+            <Youtube className="h-6 w-6" />
+          </a>
+        </div>
+
+        <div className="flex items-center justify-center space-x-2 opacity-50">
+          <GraduationCap className="h-8 w-8" />
+          <span className="font-bold text-lg uppercase tracking-wider">Shiksha Niketan</span>
+        </div>
+
+        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} Shiksha Niketan Educational Institution. All rights reserved.</p>
         </div>
       </div>
     </footer>
