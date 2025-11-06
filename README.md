@@ -1,22 +1,12 @@
-# Welcome to your Lovable project
+# Anupam Shiksha Niketan - School Website
 
-## Project info
+## Project Overview
 
-**URL**: https://lovable.dev/projects/b79d2c12-b191-49dc-bfc6-06417c3904dd
+This is the official website for Anupam Shiksha Niketan Sr. Sec. School, built with modern web technologies.
 
 ## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/b79d2c12-b191-49dc-bfc6-06417c3904dd) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+You can edit this code using your preferred IDE or code editor.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +52,12 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/b79d2c12-b191-49dc-bfc6-06417c3904dd) and click on Share -> Publish.
+You can deploy this project to any hosting platform that supports Node.js applications, such as:
 
-## Can I connect a custom domain to my Lovable project?
+- Vercel
+- Netlify
+- AWS Amplify
+- GitHub Pages (with build step)
+- Any VPS or cloud server
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Simply run `npm run build` to create a production build, then deploy the `dist` folder to your hosting platform.

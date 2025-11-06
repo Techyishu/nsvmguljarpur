@@ -21,7 +21,7 @@ const Gallery = () => {
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-6xl md:text-7xl font-black mb-6 uppercase tracking-tight">NEWS & EVENTS</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Explore our vibrant community through these captured moments
+            Stay updated with the latest happenings and achievements at Anupam Shiksha Niketan
           </p>
         </div>
       </section>

@@ -32,24 +32,38 @@ export interface GalleryImage {
 export const mockActivities: Activity[] = [
   {
     id: "1",
-    title: "Solo Song Competition (Folk Song)",
-    description: "Classes VI-VIII participated in a wonderful folk song competition showcasing traditional music.",
+    title: "Solo Song competition (Theme-Folk Song) Classes VI-VIII",
+    description: "Solo Song competition with Folk Song theme for Classes VI-VIII.",
     date: "2024-03-15",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop"
   },
   {
     id: "2",
-    title: "Annual Sports Day",
-    description: "Students displayed remarkable athletic abilities in various sports events.",
-    date: "2024-03-10",
+    title: "Christmas Day Celebration",
+    description: "Christmas Day Celebration at the school.",
+    date: "2024-12-25",
     image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop"
   },
   {
     id: "3",
-    title: "Science Exhibition",
-    description: "Young scientists showcased innovative projects and experiments.",
-    date: "2024-03-05",
+    title: "Assembly Time: Drama Presentation Grade IV",
+    description: "Drama Presentation by Grade IV students during assembly time.",
+    date: "2024-03-10",
     image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=600&fit=crop"
+  },
+  {
+    id: "4",
+    title: "Sports Event",
+    description: "Annual sports event showcasing various athletic competitions.",
+    date: "2024-02-20",
+    image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop"
+  },
+  {
+    id: "5",
+    title: "Activity Hall",
+    description: "Various activities and events held in the Activity Hall.",
+    date: "2024-03-01",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop"
   }
 ];
 

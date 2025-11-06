@@ -45,7 +45,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-lg mb-1 uppercase tracking-wider">Address</h3>
-                        <p className="text-muted-foreground">School Address, City - 132037</p>
+                        <p className="text-muted-foreground">Anupam Shiksha Niketan School Kutail, Haryana 132037</p>
                       </div>
                     </div>
                     
@@ -65,7 +65,7 @@ const Contact = () => {
                       </div>
                       <div>
                         <h3 className="font-bold text-lg mb-1 uppercase tracking-wider">Email</h3>
-                        <p className="text-muted-foreground">school@example.com</p>
+                        <p className="text-muted-foreground">anupamshikshaniketan@gmail.com</p>
                       </div>
                     </div>
                     

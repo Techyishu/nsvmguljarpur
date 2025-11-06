@@ -8,32 +8,32 @@ const Facilities = () => {
     {
       icon: BookOpen,
       title: "Library",
-      description: "The school library is housed in a spacious hall with a well-selected large collection of more than 400 books covering various subjects and genres."
+      description: "The school library is housed in a spacious hall with a well selected large collection of more than 400 books."
     },
     {
       icon: Trophy,
       title: "Sports Complex",
-      description: "Our sports complex has facilities for athletics, basketball, volleyball, badminton, and other sports to promote physical fitness and teamwork."
+      description: "The School's Sports Complex has facilities for athletics, basketball, volleyball, badminton etc."
     },
     {
       icon: Building,
-      title: "Science & Math Labs",
-      description: "Well-equipped laboratories for Physics, Chemistry, Biology, and Mathematics provide hands-on learning experiences."
+      title: "Science & Maths Labs",
+      description: "Well equipped Science labs (Physics, Chemistry, Biology, Maths) for wonderful learning experiences."
     },
     {
       icon: Music,
       title: "Music Center",
-      description: "Along with the curriculum, the school has a well-equipped Music Centre for students to explore their artistic talents."
+      description: "Along with the curriculum, the School has a well equipped Music Centre."
     },
     {
       icon: Stethoscope,
       title: "Medical Clinic",
-      description: "An air-conditioned infirmary is available for students' first-aid and medical emergencies."
+      description: "An air conditioned Infirmary is available for the students' first-aid."
     },
     {
       icon: Bus,
       title: "Transportation",
-      description: "The school maintains a fleet of GPS-enabled buses for safe and convenient transportation of students."
+      description: "The School maintains a fleet of GPS enabled buses for transporting students."
     },
     {
       icon: Laptop,

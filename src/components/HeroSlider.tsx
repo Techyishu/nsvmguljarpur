@@ -4,17 +4,17 @@ import { Button } from "@/components/ui/button";
 
 const slides = [
   {
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1920&h=800&fit=crop",
-    title: "SHIKSHA NIKETAN",
-    subtitle: "EDUCATIONAL INSTITUTION"
+    image: "/images/imgi_136_our-gallery-19.jpg", // School building with students receiving sweets
+    title: "ANUPAM SHIKSHA NIKETAN",
+    subtitle: "SR. SEC. SCHOOL"
   },
   {
-    image: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1920&h=800&fit=crop",
+    image: "/images/directors-message.jpg", // Man speaking at decorated podium
     title: "BUILDING TOMORROW",
     subtitle: "EXCELLENCE IN EDUCATION"
   },
   {
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&h=800&fit=crop",
+    image: "/images/s7.jpg", // Students receiving sweets in front of school
     title: "NURTURING MINDS",
     subtitle: "SHAPING FUTURES"
   }
@@ -34,26 +34,25 @@ export const HeroSlider = () => {
   const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <div className="relative h-[700px] overflow-hidden">
+    <div className="relative h-[700px] z-0 overflow-visible">
       {slides.map((slide, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
+          className={`absolute inset-0 transition-opacity duration-1000 z-0 ${
             index === current ? "opacity-100" : "opacity-0"
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70 z-10" />
           <img
             src={slide.image}
             alt={slide.title}
-            className="w-full h-full object-cover grayscale"
+            className="w-full h-full object-contain object-center"
           />
-          <div className="absolute inset-0 z-20 flex items-center justify-center text-center">
+          <div className="absolute inset-0 z-20 flex items-center justify-center text-center bg-black/30">
             <div className="text-white px-4 max-w-5xl">
-              <h1 className="text-7xl md:text-9xl font-black mb-6 tracking-tight animate-fade-in">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-4 tracking-tight animate-fade-in drop-shadow-lg">
                 {slide.title}
               </h1>
-              <p className="text-xl md:text-2xl font-semibold tracking-[0.3em] animate-fade-in animation-delay-200 uppercase">
+              <p className="text-base md:text-lg lg:text-xl font-semibold tracking-[0.2em] animate-fade-in animation-delay-200 uppercase drop-shadow-lg">
                 {slide.subtitle}
               </p>
             </div>

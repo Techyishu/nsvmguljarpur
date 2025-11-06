@@ -36,7 +36,7 @@ const Academics = () => {
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-5xl font-bold mb-4">Academics</h1>
             <p className="text-xl max-w-3xl mx-auto">
-              Comprehensive education from Nursery to Class XII
+              Comprehensive education from Nursery to Class XII with accreditation and quality instruction
             </p>
           </div>
         </section>
@@ -64,11 +64,53 @@ const Academics = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl font-bold text-center mb-8 text-accent-foreground">
-                Academic Year
+                Academic Information
               </h2>
-              <Card>
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Accreditation</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      The school is accredited and recognized for providing quality education from Nursery to Class 12.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Medium of Instruction</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      English is the primary medium of instruction, ensuring students are well-prepared for global opportunities.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Streams Offered</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      Senior School offers specialized streams including Science, Commerce, and Arts for career-focused education.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Scholarships & Awards</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      The school recognizes and rewards academic excellence through various scholarships and awards programs.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+              <Card className="mt-6">
                 <CardContent className="pt-6">
-                  <p className="text-center text-lg">
+                  <p className="text-center text-lg font-semibold">
                     The new academic session starts from 1st April each year.
                   </p>
                 </CardContent>

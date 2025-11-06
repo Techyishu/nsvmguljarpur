@@ -18,22 +18,30 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Links</h3>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="/contact" className="hover:text-secondary transition-colors">Contact Us</a></li>
-              <li><a href="/admin" className="hover:text-secondary transition-colors">Admin Panel</a></li>
-              <li><a href="/" className="hover:text-secondary transition-colors">Home</a></li>
+              <li><a href="/about" className="hover:text-secondary transition-colors">About Us</a></li>
+              <li><a href="/academics" className="hover:text-secondary transition-colors">Academics</a></li>
+              <li><a href="/facilities" className="hover:text-secondary transition-colors">Facilities</a></li>
               <li><a href="/gallery" className="hover:text-secondary transition-colors">News & Events</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Projects</h3>
+            <h3 className="font-bold text-lg mb-6 uppercase tracking-wider">Contact Us</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="/academics" className="hover:text-secondary transition-colors">Primary Education</a></li>
-              <li><a href="/academics" className="hover:text-secondary transition-colors">Secondary Education</a></li>
-              <li><a href="/facilities" className="hover:text-secondary transition-colors">Sports Programs</a></li>
-              <li><a href="/facilities" className="hover:text-secondary transition-colors">Cultural Activities</a></li>
+              <li className="flex items-start space-x-2">
+                <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>Anupam Shiksha Niketan School Kutail, Haryana 132037</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Phone className="h-4 w-4 flex-shrink-0" />
+                <span>+91-85700 54094</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Mail className="h-4 w-4 flex-shrink-0" />
+                <span>anupamshikshaniketan@gmail.com</span>
+              </li>
             </ul>
           </div>
 
@@ -70,11 +78,11 @@ export const Footer = () => {
 
         <div className="flex items-center justify-center space-x-2 opacity-50">
           <GraduationCap className="h-8 w-8" />
-          <span className="font-bold text-lg uppercase tracking-wider">Shiksha Niketan</span>
+          <span className="font-bold text-lg uppercase tracking-wider">Anupam Shiksha Niketan</span>
         </div>
 
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Shiksha Niketan Educational Institution. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Anupam Shiksha Niketan Sr. Sec. School. All rights reserved.</p>
         </div>
       </div>
     </footer>

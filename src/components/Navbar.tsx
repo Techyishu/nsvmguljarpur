@@ -20,7 +20,7 @@ export const Navbar = () => {
         <div className="flex justify-between items-center h-20">
           <NavLink to="/" className="flex items-center space-x-2">
             <GraduationCap className="h-8 w-8 text-secondary" />
-            <span className="font-bold text-xl uppercase tracking-wider">Shiksha Niketan</span>
+            <span className="font-bold text-xl uppercase tracking-wider">Anupam Shiksha Niketan</span>
           </NavLink>
 
           {/* Desktop Menu */}
