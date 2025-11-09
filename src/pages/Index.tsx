@@ -130,7 +130,7 @@ const Index = () => {
 
       <main className="flex-1">
         {/* Stats */}
-        <section className="relative z-30 -mt-8 pb-12 md:-mt-16 md:pb-16">
+        <section className="relative z-30 py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
               {STATS.map((stat) => (
