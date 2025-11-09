@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { mockActivities, mockStaff, mockToppers, mockGallery } from "@/data/mockData";
+import { PageHero } from "@/components/PageHero";
 
 const Admin = () => {
   const { toast } = useToast();
@@ -32,15 +33,12 @@ const Admin = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      
-      <section className="py-24 bg-card">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-6xl md:text-7xl font-black mb-6 uppercase tracking-tight">ADMIN PANEL</h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Manage your school's content and information
-          </p>
-        </div>
-      </section>
+
+      <PageHero
+        title="Admin Panel"
+        description="Manage your school’s content, events, and key information with streamlined tools designed for administrators."
+        eyebrow="School Operations"
+      />
 
       <main className="flex-grow py-16">
         <div className="container mx-auto px-4">

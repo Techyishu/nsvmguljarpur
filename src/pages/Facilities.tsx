@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHero } from "@/components/PageHero";
 import { BookOpen, Trophy, Building, Music, Users, Bus, Stethoscope, Laptop } from "lucide-react";
 
 const Facilities = () => {
@@ -52,28 +53,25 @@ const Facilities = () => {
       <Navbar />
       
       <main className="flex-grow">
-        <section className="bg-primary text-primary-foreground py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-5xl font-bold mb-4">Our Facilities</h1>
-            <p className="text-xl max-w-3xl mx-auto">
-              State-of-the-art infrastructure for holistic development
-            </p>
-          </div>
-        </section>
+        <PageHero
+          title="Our Facilities"
+          description="State-of-the-art infrastructure curated to support academic excellence, wellbeing, and co-curricular pursuits."
+          eyebrow="Campus Highlights"
+        />
 
-        <section className="py-16">
+        <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto md:gap-6">
               {facilities.map((facility, index) => {
                 const Icon = facility.icon;
                 return (
                   <Card key={index} className="hover:shadow-xl transition-shadow">
-                    <CardHeader>
-                      <Icon className="h-12 w-12 text-secondary mb-4" />
-                      <CardTitle className="text-xl">{facility.title}</CardTitle>
+                    <CardHeader className="pb-4 md:pb-6">
+                      <Icon className="h-10 w-10 text-secondary mb-3 md:h-12 md:w-12 md:mb-4" />
+                      <CardTitle className="text-base md:text-xl">{facility.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">{facility.description}</p>
+                      <p className="text-muted-foreground text-xs md:text-base">{facility.description}</p>
                     </CardContent>
                   </Card>
                 );
