@@ -118,8 +118,6 @@ const reviewSchema = z.object({
 });
 
 const gallerySchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  category: z.string().optional(),
   image_url: z.string().min(1, "Image is required"),
   sort_order: z.coerce.number().min(0, "Sort order must be 0 or greater"),
   is_published: z.boolean(),
@@ -168,23 +166,18 @@ const Admin = () => {
 
     const verifyAdmin = async (currentSession: Session) => {
       setIsCheckingAdmin(true);
-      const { data, error } = await supabase
-        .from("app_admins")
-        .select("user_id")
-        .eq("user_id", currentSession.user.id)
-        .maybeSingle();
-
+      
+      // Check if user has admin role in metadata
+      const userRole = currentSession.user.user_metadata?.role;
+      
       if (!isMounted) return;
 
-      if (error) {
-        setAuthError(error.message);
-        setIsAdmin(false);
-      } else if (!data) {
-        setAuthError("Your account is not authorised for this admin panel. Contact the site owner.");
-        setIsAdmin(false);
-      } else {
+      if (userRole === "admin") {
         setAuthError(null);
         setIsAdmin(true);
+      } else {
+        setAuthError("Your account is not authorised for this admin panel. Contact the site owner.");
+        setIsAdmin(false);
       }
 
       setIsCheckingAdmin(false);
@@ -587,7 +580,8 @@ const Admin = () => {
               </CardHeader>
               <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <p>Your account is signed in but does not have permission to manage the admin panel.</p>
-                <p>Please contact the project owner to be added to the `app_admins` list in Supabase.</p>
+                <p>Please contact the project owner to add admin role to your user metadata in Supabase.</p>
+                <p className="text-xs bg-muted p-2 rounded font-mono">User Metadata → {`{"role": "admin"}`}</p>
                 {authError ? <p className="text-destructive">{authError}</p> : null}
                 <div className="flex justify-end">
                   <Button variant="outline" onClick={handleSignOut}>
@@ -1022,7 +1016,7 @@ const Admin = () => {
                           <div className="relative aspect-[4/3]">
                             <img
                               src={image.image_url}
-                              alt={image.title}
+                              alt="Gallery image"
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute top-2 right-2 flex gap-1">
@@ -1040,12 +1034,6 @@ const Admin = () => {
                           <CardContent className="pt-4 space-y-3">
                             <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
                               <span>Order {image.sort_order}</span>
-                            </div>
-                            <div>
-                              <h3 className="font-bold uppercase tracking-wider">{image.title}</h3>
-                              {image.category && (
-                                <p className="text-sm text-secondary font-bold">{image.category}</p>
-                              )}
                             </div>
                             <div className="flex justify-end space-x-2">
                               <Button
@@ -1259,8 +1247,8 @@ const Admin = () => {
         onOpenChange={(open) => (!open ? setGalleryDialog(null) : null)}
         onSubmit={async (values) => {
           const payload = {
-            title: values.title,
-            category: values.category?.trim() ? values.category.trim() : null,
+            title: null,
+            category: null,
             image_url: values.image_url,
             sort_order: values.sort_order,
             is_published: values.is_published,
@@ -1354,7 +1342,7 @@ const ActivityFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="uppercase tracking-wider">
             {mode === "edit" ? "Edit Activity" : "Add Activity"}
@@ -1362,7 +1350,7 @@ const ActivityFormDialog = ({
           <DialogDescription>Publish events, announcements, and co-curricular updates.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 overflow-y-auto flex-1 pr-2" onSubmit={handleSubmit}>
             <FormField
               control={form.control}
               name="title"
@@ -1521,7 +1509,7 @@ const StaffFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="uppercase tracking-wider">
             {mode === "edit" ? "Edit Staff Member" : "Add Staff Member"}
@@ -1529,7 +1517,7 @@ const StaffFormDialog = ({
           <DialogDescription>Introduce key educators and administrators.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 overflow-y-auto flex-1 pr-2" onSubmit={handleSubmit}>
             <FormField
               control={form.control}
               name="full_name"
@@ -1691,7 +1679,7 @@ const TopperFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="uppercase tracking-wider">
             {mode === "edit" ? "Edit Topper" : "Add Topper"}
@@ -1699,7 +1687,7 @@ const TopperFormDialog = ({
           <DialogDescription>Highlight outstanding academic achievements.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 overflow-y-auto flex-1 pr-2" onSubmit={handleSubmit}>
             <FormField
               control={form.control}
               name="student_name"
@@ -1873,7 +1861,7 @@ const ReviewFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="uppercase tracking-wider">
             {mode === "edit" ? "Edit Review" : "Add Review"}
@@ -1881,7 +1869,7 @@ const ReviewFormDialog = ({
           <DialogDescription>Share testimonials from parents, alumni, or partners.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4 overflow-y-auto flex-1 pr-2" onSubmit={handleSubmit}>
             <FormField
               control={form.control}
               name="author_name"
@@ -2009,8 +1997,6 @@ const GalleryFormDialog = ({
   const form = useForm<GalleryFormValues>({
     resolver: zodResolver(gallerySchema),
     defaultValues: {
-      title: initialData?.title ?? "",
-      category: initialData?.category ?? "",
       image_url: initialData?.image_url ?? "",
       sort_order: initialData?.sort_order ?? defaultSortOrder,
       is_published: initialData?.is_published ?? true,
@@ -2020,8 +2006,6 @@ const GalleryFormDialog = ({
   useEffect(() => {
     if (open) {
       form.reset({
-        title: initialData?.title ?? "",
-        category: initialData?.category ?? "",
         image_url: initialData?.image_url ?? "",
         sort_order: initialData?.sort_order ?? defaultSortOrder,
         is_published: initialData?.is_published ?? true,
@@ -2032,8 +2016,6 @@ const GalleryFormDialog = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     await onSubmit(values);
     form.reset({
-      title: "",
-      category: "",
       image_url: "",
       sort_order: defaultSortOrder,
       is_published: true,
@@ -2042,7 +2024,7 @@ const GalleryFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="uppercase tracking-wider">
             {mode === "edit" ? "Edit Gallery Image" : "Add Gallery Image"}
@@ -2054,33 +2036,7 @@ const GalleryFormDialog = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Annual Function 2024" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category (optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Events, Facilities, Sports" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto flex-1 pr-2">
             <FormField
               control={form.control}
               name="image_url"

@@ -50,21 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-      app_admins: {
-        Row: {
-          created_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       gallery_images: {
         Row: {
           category: string | null
@@ -73,7 +58,7 @@ export type Database = {
           image_url: string
           is_published: boolean
           sort_order: number
-          title: string
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -83,7 +68,7 @@ export type Database = {
           image_url: string
           is_published?: boolean
           sort_order?: number
-          title: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -93,7 +78,7 @@ export type Database = {
           image_url?: string
           is_published?: boolean
           sort_order?: number
-          title?: string
+          title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -214,7 +199,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
