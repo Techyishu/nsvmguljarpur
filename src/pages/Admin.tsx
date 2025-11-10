@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Loader2, LogOut, Pencil, Plus, Trash2 } from "lucide-react";
+import { Check, Loader2, LogOut, Pencil, Plus, Trash2, UploadCloud } from "lucide-react";
 
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -71,6 +71,7 @@ import {
   type StaffRecord,
   type TopperRecord,
 } from "@/services/content";
+import { uploadImage } from "@/lib/imageUpload";
 
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -149,6 +150,10 @@ const Admin = () => {
   const [topperDialog, setTopperDialog] = useState<EntityDialogState<TopperRecord> | null>(null);
   const [reviewDialog, setReviewDialog] = useState<EntityDialogState<ReviewRecord> | null>(null);
   const [galleryDialog, setGalleryDialog] = useState<EntityDialogState<GalleryRecord> | null>(null);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ total: 0, completed: 0, failed: 0 });
+  const [bulkErrors, setBulkErrors] = useState<string[]>([]);
 
   const [activityToDelete, setActivityToDelete] = useState<ActivityRecord | null>(null);
   const [staffToDelete, setStaffToDelete] = useState<StaffRecord | null>(null);
@@ -274,6 +279,77 @@ const Admin = () => {
     if (!galleryQuery.data?.length) return 0;
     return Math.max(...galleryQuery.data.map((item) => item.sort_order)) + 1;
   }, [galleryQuery.data]);
+
+  const resetBulkState = useCallback(() => {
+    setBulkProgress({ total: 0, completed: 0, failed: 0 });
+    setBulkErrors([]);
+  }, []);
+
+  const handleBulkDialogOpenChange = useCallback(
+    (open: boolean) => {
+      if (isBulkUploading) return;
+      setIsBulkUploadOpen(open);
+      resetBulkState();
+    },
+    [isBulkUploading, resetBulkState]
+  );
+
+  const handleBulkFilesAccepted = useCallback(
+    async (files: File[]) => {
+      if (!files.length) return;
+
+      setBulkErrors([]);
+      setBulkProgress({ total: files.length, completed: 0, failed: 0 });
+      setIsBulkUploading(true);
+
+      let sortOrder = Number.isFinite(nextGallerySortOrder) ? nextGallerySortOrder : 0;
+      let completed = 0;
+      let failed = 0;
+      const failures: string[] = [];
+
+      for (const file of files) {
+        try {
+          const { url } = await uploadImage(file, "gallery");
+          await insertGalleryImage({
+            image_url: url,
+            sort_order: sortOrder++,
+            is_published: true,
+          });
+          completed += 1;
+        } catch (error) {
+          failed += 1;
+          failures.push(`${file.name}: ${error instanceof Error ? error.message : "Upload failed"}`);
+        }
+
+        setBulkProgress({ total: files.length, completed, failed });
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["admin", "gallery"] });
+      await queryClient.invalidateQueries({ queryKey: ["public", "gallery"] });
+
+      if (completed > 0) {
+        toast({
+          title: "Bulk upload complete",
+          description: `${completed} image${completed === 1 ? "" : "s"} uploaded successfully.`,
+        });
+      }
+
+      if (failures.length) {
+        setBulkErrors(failures);
+        toast({
+          title: "Some uploads failed",
+          description: failures.slice(0, 3).join(" • "),
+          variant: "destructive",
+        });
+      } else {
+        setIsBulkUploadOpen(false);
+        resetBulkState();
+      }
+
+      setIsBulkUploading(false);
+    },
+    [nextGallerySortOrder, queryClient, resetBulkState, toast, insertGalleryImage, uploadImage]
+  );
 
   const handleSignIn = signInForm.handleSubmit(async (values) => {
     setAuthError(null);
@@ -512,7 +588,7 @@ const Admin = () => {
 
       <PageHero
         title="Admin Panel"
-        description="Manage your school’s content, events, and key information with streamlined tools designed for administrators."
+        description="Manage your school's content, events, and key information with streamlined tools designed for administrators."
         eyebrow="School Operations"
       />
 
@@ -757,7 +833,7 @@ const Admin = () => {
                             <img
                                       src={member.photo_url}
                                       alt={member.full_name}
-                              className="w-20 h-20 rounded-full object-cover grayscale"
+                              className="w-20 h-20 rounded-full object-cover"
                             />
                                   ) : (
                                     <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-xs uppercase tracking-widest text-muted-foreground">
@@ -840,7 +916,7 @@ const Admin = () => {
                                     <img
                                       src={topper.photo_url}
                                       alt={topper.student_name}
-                                      className="w-24 h-24 rounded-full object-cover mx-auto mb-2 grayscale"
+                                      className="w-24 h-24 rounded-full object-cover mx-auto mb-2"
                                     />
                                   ) : (
                                     <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center text-xs uppercase tracking-widest text-muted-foreground">
@@ -991,18 +1067,29 @@ const Admin = () => {
               <Card className="bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="uppercase tracking-wider">Gallery Images</CardTitle>
-                  <Button 
-                    onClick={() =>
-                      setGalleryDialog({
-                        mode: "create",
-                        record: undefined,
-                      })
-                    }
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleBulkDialogOpenChange(true)}
+                      disabled={isBulkUploading}
+                      className="font-semibold uppercase"
+                    >
+                      <UploadCloud className="mr-2 h-4 w-4" />
+                      Bulk Upload
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        setGalleryDialog({
+                          mode: "create",
+                          record: undefined,
+                        })
+                      }
+                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {galleryQuery.isLoading ? (
@@ -1275,6 +1362,15 @@ const Admin = () => {
         }}
         onCancel={() => setGalleryToDelete(null)}
         isDeleting={galleryDeleteMutation.isPending}
+      />
+
+      <BulkGalleryUploadDialog
+        open={isBulkUploadOpen}
+        onOpenChange={handleBulkDialogOpenChange}
+        onFilesAccepted={handleBulkFilesAccepted}
+        isUploading={isBulkUploading}
+        progress={bulkProgress}
+        errors={bulkErrors}
       />
     </div>
   );
@@ -2136,5 +2232,148 @@ const DeleteConfirmDialog = ({
     </AlertDialogContent>
   </AlertDialog>
 );
+
+interface BulkGalleryUploadDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onFilesAccepted: (files: File[]) => void | Promise<void>;
+  isUploading: boolean;
+  progress: { total: number; completed: number; failed: number };
+  errors: string[];
+}
+
+const BulkGalleryUploadDialog = ({
+  open,
+  onOpenChange,
+  onFilesAccepted,
+  isUploading,
+  progress,
+  errors,
+}: BulkGalleryUploadDialogProps) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const triggerFilePicker = () => {
+    if (isUploading) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFiles = (files: File[]) => {
+    if (!files.length || isUploading) return;
+    void onFilesAccepted(files);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? Array.from(event.target.files) : [];
+    handleFiles(files);
+    event.target.value = "";
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragOver(false);
+    if (isUploading) return;
+
+    const files = Array.from(event.dataTransfer.files);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    handleFiles(imageFiles);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (isUploading) {
+      event.dataTransfer.dropEffect = "none";
+      return;
+    }
+    event.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    if (!isUploading) {
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const dropAreaClasses = [
+    "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border bg-muted/30 py-12 text-center transition",
+    isDragOver ? "border-secondary bg-secondary/10" : "",
+    isUploading ? "opacity-70 cursor-not-allowed" : "cursor-pointer hover:bg-muted/50",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="uppercase tracking-wider">Bulk Upload Images</DialogTitle>
+          <DialogDescription>Drag and drop multiple images or click to browse your files.</DialogDescription>
+        </DialogHeader>
+        <div
+          className={dropAreaClasses}
+          onClick={triggerFilePicker}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            multiple
+            className="hidden"
+            onChange={handleInputChange}
+            disabled={isUploading}
+          />
+          {isUploading ? (
+            <>
+              <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+              <p className="text-sm font-medium text-muted-foreground">Uploading images…</p>
+              {progress.total > 0 && (
+                <p className="text-xs text-muted-foreground/70">
+                  {progress.completed} of {progress.total} completed
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <UploadCloud className="h-10 w-10 text-muted-foreground" />
+              <p className="text-sm font-medium text-muted-foreground">Drop images here or click to upload</p>
+              <p className="text-xs text-muted-foreground">JPEG, PNG, WebP, GIF • Max 10MB each</p>
+            </>
+          )}
+        </div>
+        {progress.total > 0 && (
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-sm">
+            <p className="font-semibold text-primary">
+              {progress.completed} of {progress.total} uploaded
+            </p>
+            {progress.failed > 0 && <p className="text-destructive">Failed: {progress.failed}</p>}
+          </div>
+        )}
+        {errors.length > 0 && (
+          <div className="max-h-48 overflow-y-auto rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive space-y-1">
+            {errors.map((error, index) => (
+              <p key={`${error}-${index}`}>{error}</p>
+            ))}
+          </div>
+        )}
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isUploading}>
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default Admin;

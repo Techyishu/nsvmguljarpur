@@ -1,9 +1,17 @@
+import imageCompression from "browser-image-compression";
 import { supabase } from "./supabaseClient";
 
 export interface UploadResult {
   url: string;
   path: string;
 }
+
+const COMPRESSION_OPTIONS = {
+  maxSizeMB: 0.8,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+  initialQuality: 0.85,
+};
 
 /**
  * Upload an image file to Supabase Storage
@@ -12,22 +20,36 @@ export interface UploadResult {
  * @returns The public URL and storage path of the uploaded image
  */
 export async function uploadImage(file: File, folder?: string): Promise<UploadResult> {
-  // Generate unique filename
-  const fileExt = file.name.split(".").pop();
+  const validation = validateImageFile(file);
+  if (!validation.valid) {
+    throw new Error(validation.error || "Invalid image file");
+  }
+
+  let fileToUpload = file;
+
+  try {
+    const compressed = await imageCompression(file, COMPRESSION_OPTIONS);
+    if (compressed.size > 0 && compressed.size <= file.size) {
+      fileToUpload = compressed as File;
+    }
+  } catch (error) {
+    console.warn("Image compression failed, uploading original file", error);
+  }
+
+  const fileExt = file.name.split(".").pop() ?? "jpg";
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
   const filePath = folder ? `${folder}/${fileName}` : fileName;
 
-  // Upload to Supabase Storage
-  const { data, error } = await supabase.storage.from("images").upload(filePath, file, {
+  const { data, error } = await supabase.storage.from("images").upload(filePath, fileToUpload, {
     cacheControl: "3600",
     upsert: false,
+    contentType: fileToUpload.type || file.type,
   });
 
   if (error) {
     throw new Error(`Upload failed: ${error.message}`);
   }
 
-  // Get public URL
   const {
     data: { publicUrl },
   } = supabase.storage.from("images").getPublicUrl(data.path);
