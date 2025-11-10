@@ -669,75 +669,75 @@ const Admin = () => {
             </Card>
           ) : (
             <div className="space-y-8">
-              <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground text-center sm:text-left">
                   Signed in as {session.user.email}
                 </p>
-                <Button variant="outline" onClick={handleSignOut}>
+                <Button variant="outline" onClick={handleSignOut} className="w-full sm:w-auto">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
               </div>
 
-              <Tabs defaultValue="activities" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 bg-card border border-border h-auto p-2">
-              <TabsTrigger 
-                value="activities" 
-                className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground font-bold uppercase tracking-wider py-3"
-              >
-                Activities
-              </TabsTrigger>
-              <TabsTrigger 
-                value="staff"
-                className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground font-bold uppercase tracking-wider py-3"
-              >
-                Staff
-              </TabsTrigger>
-              <TabsTrigger 
-                value="toppers"
-                className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground font-bold uppercase tracking-wider py-3"
-              >
-                Toppers
-              </TabsTrigger>
-              <TabsTrigger 
-                    value="reviews"
-                className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground font-bold uppercase tracking-wider py-3"
-              >
-                    Reviews
-              </TabsTrigger>
-              <TabsTrigger 
-                value="gallery"
-                className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground font-bold uppercase tracking-wider py-3"
-              >
-                Gallery
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="activities" className="space-y-4 mt-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="uppercase tracking-wider">Manage Activities</CardTitle>
-                  <Button 
-                        onClick={() =>
-                          setActivityDialog({
-                            mode: "create",
-                            record: undefined,
-                          })
-                        }
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
+              <Tabs defaultValue="activities" className="w-full space-y-6">
+                <TabsList className="flex w-full overflow-x-auto overscroll-x-contain gap-2 rounded-md border border-border bg-card p-2 sm:grid sm:grid-cols-5 sm:overflow-visible">
+                  <TabsTrigger
+                    value="activities"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                      {activitiesQuery.isLoading ? (
-                        renderLoadingState("Loading activities")
-                      ) : !activitiesQuery.data?.length ? (
-                        renderEmptyState("No activities yet. Start by adding the first event.")
-                      ) : (
-                  <div className="space-y-4">
-                          {activitiesQuery.data.map((activity) => (
+                    Activities
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="staff"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
+                  >
+                    Staff
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="toppers"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
+                  >
+                    Toppers
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="reviews"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
+                  >
+                    Reviews
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="gallery"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
+                  >
+                    Gallery
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="activities" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="uppercase tracking-wider">Manage Activities</CardTitle>
+                      <Button
+                            onClick={() =>
+                              setActivityDialog({
+                                mode: "create",
+                                record: undefined,
+                              })
+                            }
+                        className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase sm:w-auto"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                          {activitiesQuery.isLoading ? (
+                            renderLoadingState("Loading activities")
+                          ) : !activitiesQuery.data?.length ? (
+                            renderEmptyState("No activities yet. Start by adding the first event.")
+                          ) : (
+                    <div className="space-y-4">
+                            {activitiesQuery.data.map((activity) => (
                       <Card key={activity.id} className="bg-background border-border">
                         <CardContent className="pt-6">
                                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -797,35 +797,35 @@ const Admin = () => {
                     ))}
                   </div>
                       )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-            <TabsContent value="staff" className="space-y-4 mt-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="uppercase tracking-wider">Manage Staff</CardTitle>
-                  <Button 
-                        onClick={() =>
-                          setStaffDialog({
-                            mode: "create",
-                            record: undefined,
-                          })
-                        }
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                      {staffQuery.isLoading ? (
-                        renderLoadingState("Loading staff members")
-                      ) : !staffQuery.data?.length ? (
-                        renderEmptyState("No staff profiles available yet.")
-                      ) : (
-                  <div className="grid md:grid-cols-2 gap-4">
-                          {staffQuery.data.map((member) => (
+                <TabsContent value="staff" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="uppercase tracking-wider">Manage Staff</CardTitle>
+                      <Button
+                            onClick={() =>
+                              setStaffDialog({
+                                mode: "create",
+                                record: undefined,
+                              })
+                            }
+                        className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase sm:w-auto"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                          {staffQuery.isLoading ? (
+                            renderLoadingState("Loading staff members")
+                          ) : !staffQuery.data?.length ? (
+                            renderEmptyState("No staff profiles available yet.")
+                          ) : (
+                    <div className="grid md:grid-cols-2 gap-4">
+                            {staffQuery.data.map((member) => (
                       <Card key={member.id} className="bg-background border-border">
                         <CardContent className="pt-6">
                                 <div className="flex items-start gap-4">
@@ -880,35 +880,35 @@ const Admin = () => {
                     ))}
                   </div>
                       )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-            <TabsContent value="toppers" className="space-y-4 mt-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="uppercase tracking-wider">Manage Toppers</CardTitle>
-                  <Button 
+                <TabsContent value="toppers" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="uppercase tracking-wider">Manage Toppers</CardTitle>
+                      <Button
                         onClick={() =>
                           setTopperDialog({
                             mode: "create",
                             record: undefined,
                           })
                         }
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
+                    className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add New
                   </Button>
-                </CardHeader>
-                <CardContent>
-                      {toppersQuery.isLoading ? (
-                        renderLoadingState("Loading toppers")
-                      ) : !toppersQuery.data?.length ? (
-                        renderEmptyState("No toppers recorded yet.")
-                      ) : (
-                  <div className="grid md:grid-cols-3 gap-4">
-                          {toppersQuery.data.map((topper) => (
+                    </CardHeader>
+                    <CardContent>
+                          {toppersQuery.isLoading ? (
+                            renderLoadingState("Loading toppers")
+                          ) : !toppersQuery.data?.length ? (
+                            renderEmptyState("No toppers recorded yet.")
+                          ) : (
+                    <div className="grid md:grid-cols-3 gap-4">
+                            {toppersQuery.data.map((topper) => (
                       <Card key={topper.id} className="bg-background border-border">
                               <CardContent className="pt-6 text-center space-y-4">
                                 <div className="flex flex-col items-center gap-3">
@@ -964,195 +964,195 @@ const Admin = () => {
                     ))}
                   </div>
                       )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-                <TabsContent value="reviews" className="space-y-4 mt-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="uppercase tracking-wider">Homepage Reviews</CardTitle>
-                  <Button 
+                    <TabsContent value="reviews" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="uppercase tracking-wider">Manage Reviews</CardTitle>
+                      <Button
                         onClick={() =>
                           setReviewDialog({
                             mode: "create",
                             record: undefined,
                           })
                         }
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
+                    className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add New
                   </Button>
-                </CardHeader>
-                <CardContent>
-                      {reviewsQuery.isLoading ? (
-                        renderLoadingState("Loading reviews")
-                      ) : !reviewsQuery.data?.length ? (
-                        renderEmptyState("No reviews yet. Add testimonials to highlight your school.")
+                    </CardHeader>
+                    <CardContent>
+                          {reviewsQuery.isLoading ? (
+                            renderLoadingState("Loading reviews")
+                          ) : !reviewsQuery.data?.length ? (
+                            renderEmptyState("No reviews yet. Add testimonials to highlight your school.")
+                          ) : (
+                            <div className="space-y-4">
+                              {reviewsQuery.data.map((review) => (
+                                <Card key={review.id} className="bg-background border-border">
+                                  <CardContent className="pt-6 space-y-3">
+                                    <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                                      <span>Order {review.sort_order}</span>
+                                      {review.is_featured ? (
+                                        <span className="text-secondary">Featured</span>
+                                      ) : (
+                                        <span className="rounded bg-amber-500/10 px-2 py-0.5 text-amber-600 font-semibold">
+                                          Pending Approval
+                                        </span>
+                                      )}
+                                      {review.rating !== null ? (
+                                        <span className="text-secondary">{review.rating.toFixed(1)} / 5</span>
+                                      ) : null}
+                                    </div>
+                                    <div>
+                                      <h3 className="font-semibold uppercase tracking-wider">{review.author_name}</h3>
+                                      {review.author_role ? (
+                                        <p className="text-xs text-muted-foreground">{review.author_role}</p>
+                                      ) : null}
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-muted-foreground">"{review.content}"</p>
+                                    <div className="flex gap-2">
+                                      {!review.is_featured && (
+                                        <Button
+                                          variant="default"
+                                          size="sm"
+                                          className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                                          onClick={() => {
+                                            reviewUpdateMutation.mutate({
+                                              id: review.id,
+                                              values: { is_featured: true },
+                                            });
+                                          }}
+                                          disabled={reviewUpdateMutation.isPending}
+                                        >
+                                          <Check className="h-4 w-4 mr-1" />
+                                          Approve & Feature
+                                        </Button>
+                                      )}
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="border-border hover:border-secondary"
+                                        onClick={() => setReviewDialog({ mode: "edit", record: review })}
+                                      >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                        onClick={() => setReviewToDelete(review)}
+                                        disabled={reviewDeleteMutation.isPending && reviewToDelete?.id === review.id}
+                                >
+                                        {reviewDeleteMutation.isPending && reviewToDelete?.id === review.id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                          )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="gallery" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <CardTitle className="uppercase tracking-wider">Gallery Images</CardTitle>
+                      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleBulkDialogOpenChange(true)}
+                          disabled={isBulkUploading}
+                          className="w-full font-semibold uppercase sm:w-auto"
+                        >
+                          <UploadCloud className="mr-2 h-4 w-4" />
+                          Bulk Upload
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            setGalleryDialog({
+                              mode: "create",
+                              record: undefined,
+                            })
+                          }
+                          className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase sm:w-auto"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add New
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {galleryQuery.isLoading ? (
+                        renderLoadingState("Loading gallery images")
+                      ) : !galleryQuery.data?.length ? (
+                        renderEmptyState("No gallery images yet. Add photos to showcase your school.")
                       ) : (
-                        <div className="space-y-4">
-                          {reviewsQuery.data.map((review) => (
-                            <Card key={review.id} className="bg-background border-border">
-                              <CardContent className="pt-6 space-y-3">
-                                <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                                  <span>Order {review.sort_order}</span>
-                                  {review.is_featured ? (
-                                    <span className="text-secondary">Featured</span>
+                      <div className="grid md:grid-cols-3 gap-4">
+                          {galleryQuery.data.map((image) => (
+                            <Card key={image.id} className="overflow-hidden bg-background border-border">
+                              <div className="relative aspect-[4/3]">
+                                <img
+                                  src={image.image_url}
+                                  alt="Gallery image"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 right-2 flex gap-1">
+                                  {image.is_published ? (
+                                    <span className="bg-secondary/90 text-secondary-foreground px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded">
+                                      Published
+                                    </span>
                                   ) : (
-                                    <span className="rounded bg-amber-500/10 px-2 py-0.5 text-amber-600 font-semibold">
-                                      Pending Approval
+                                    <span className="bg-muted/90 text-muted-foreground px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded">
+                                      Draft
                                     </span>
                                   )}
-                                  {review.rating !== null ? (
-                                    <span className="text-secondary">{review.rating.toFixed(1)} / 5</span>
-                                  ) : null}
                                 </div>
-                                <div>
-                                  <h3 className="font-semibold uppercase tracking-wider">{review.author_name}</h3>
-                                  {review.author_role ? (
-                                    <p className="text-xs text-muted-foreground">{review.author_role}</p>
-                                  ) : null}
+                              </div>
+                              <CardContent className="pt-4 space-y-3">
+                                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                                  <span>Order {image.sort_order}</span>
                                 </div>
-                                <p className="text-sm leading-relaxed text-muted-foreground">"{review.content}"</p>
-                                <div className="flex gap-2">
-                                  {!review.is_featured && (
-                                    <Button
-                                      variant="default"
-                                      size="sm"
-                                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                                      onClick={() => {
-                                        reviewUpdateMutation.mutate({
-                                          id: review.id,
-                                          values: { is_featured: true },
-                                        });
-                                      }}
-                                      disabled={reviewUpdateMutation.isPending}
-                                    >
-                                      <Check className="h-4 w-4 mr-1" />
-                                      Approve & Feature
-                                    </Button>
-                                  )}
+                                <div className="flex justify-end space-x-2">
                                   <Button
                                     variant="outline"
                                     size="icon"
                                     className="border-border hover:border-secondary"
-                                    onClick={() => setReviewDialog({ mode: "edit", record: review })}
+                                    onClick={() => setGalleryDialog({ mode: "edit", record: image })}
                                   >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                                    onClick={() => setReviewToDelete(review)}
-                                    disabled={reviewDeleteMutation.isPending && reviewToDelete?.id === review.id}
-                            >
-                                    {reviewDeleteMutation.isPending && reviewToDelete?.id === review.id ? (
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                    onClick={() => setGalleryToDelete(image)}
+                                    disabled={galleryDeleteMutation.isPending && galleryToDelete?.id === image.id}
+                                >
+                                    {galleryDeleteMutation.isPending && galleryToDelete?.id === image.id ? (
                                       <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : (
-                              <Trash2 className="h-4 w-4" />
-                                    )}
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                                  <Trash2 className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                       )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="gallery" className="space-y-4 mt-8">
-              <Card className="bg-card border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="uppercase tracking-wider">Gallery Images</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleBulkDialogOpenChange(true)}
-                      disabled={isBulkUploading}
-                      className="font-semibold uppercase"
-                    >
-                      <UploadCloud className="mr-2 h-4 w-4" />
-                      Bulk Upload
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        setGalleryDialog({
-                          mode: "create",
-                          record: undefined,
-                        })
-                      }
-                      className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add New
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {galleryQuery.isLoading ? (
-                    renderLoadingState("Loading gallery images")
-                  ) : !galleryQuery.data?.length ? (
-                    renderEmptyState("No gallery images yet. Add photos to showcase your school.")
-                  ) : (
-                  <div className="grid md:grid-cols-3 gap-4">
-                      {galleryQuery.data.map((image) => (
-                        <Card key={image.id} className="overflow-hidden bg-background border-border">
-                          <div className="relative aspect-[4/3]">
-                            <img
-                              src={image.image_url}
-                              alt="Gallery image"
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute top-2 right-2 flex gap-1">
-                              {image.is_published ? (
-                                <span className="bg-secondary/90 text-secondary-foreground px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded">
-                                  Published
-                                </span>
-                              ) : (
-                                <span className="bg-muted/90 text-muted-foreground px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-wider rounded">
-                                  Draft
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <CardContent className="pt-4 space-y-3">
-                            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                              <span>Order {image.sort_order}</span>
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="border-border hover:border-secondary"
-                                onClick={() => setGalleryDialog({ mode: "edit", record: image })}
-                              >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                                onClick={() => setGalleryToDelete(image)}
-                                disabled={galleryDeleteMutation.isPending && galleryToDelete?.id === image.id}
-                            >
-                                {galleryDeleteMutation.isPending && galleryToDelete?.id === image.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                              <Trash2 className="h-4 w-4" />
-                                )}
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </div>
