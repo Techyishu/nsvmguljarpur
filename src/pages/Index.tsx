@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSlider } from "@/components/HeroSlider";
 import { Footer } from "@/components/Footer";
+import { ReviewSubmissionForm } from "@/components/ReviewSubmissionForm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +16,11 @@ import {
   Shield,
   Heart,
   Brain,
+  Loader2,
+  Quote,
 } from "lucide-react";
-import { mockActivities } from "@/data/mockData";
 import { Link } from "react-router-dom";
+import { useFeaturedReviews, usePublishedActivities } from "@/hooks/useContentQueries";
 
 const STATS = [
   { value: "2.5", unit: "Acre Campus", detail: "Safe, green & future-ready infrastructure" },
@@ -123,6 +126,9 @@ const COMMUNITY_HIGHLIGHTS = [
 ];
 
 const Index = () => {
+  const activitiesQuery = usePublishedActivities();
+  const reviewsQuery = useFeaturedReviews();
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Navbar />
@@ -457,46 +463,135 @@ const Index = () => {
           </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 md:mt-12 md:grid-cols-3 md:gap-6">
-            {mockActivities.slice(0, 3).map((activity) => (
-                <Card
-                  key={activity.id}
-                  className="overflow-hidden border border-border/60 bg-white shadow-none transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
-                >
-                <div className="relative h-40 overflow-hidden md:h-48">
-                  <img
-                    src={activity.image}
-                    alt={activity.title}
-                      className="h-full w-full object-cover transition duration-500 hover:scale-105"
-                    />
-                    <div className="absolute top-3 left-3 rounded-full bg-secondary px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-secondary-foreground shadow md:top-4 md:left-4 md:px-3 md:text-xs">
-                      <Calendar className="mr-1.5 inline h-2.5 w-2.5 md:mr-2 md:h-3 md:w-3" />
-                      {new Date(activity.date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </div>
+              {activitiesQuery.isLoading ? (
+                <div className="col-span-full flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <p className="text-xs uppercase tracking-[0.3em]">Loading recent activities</p>
                 </div>
-                <CardContent className="p-4 md:p-6">
-                    <h3 className="text-base font-semibold text-primary md:text-lg">{activity.title}</h3>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground md:mt-3 md:text-sm">
-                      {activity.description}
-                    </p>
-                    <Button
-                      asChild
-                      variant="link"
-                      className="mt-3 px-0 text-xs text-primary hover:text-secondary md:mt-4 md:text-sm"
-                    >
-                      <Link to="/gallery">
-                        View Gallery
-                        <ArrowRight className="ml-1.5 inline h-3.5 w-3.5 md:ml-2 md:h-4 md:w-4" />
-                      </Link>
-                    </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+              ) : activitiesQuery.isError ? (
+                <div className="col-span-full rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center text-destructive">
+                  We're unable to show recent activities right now. Please check back shortly.
+                </div>
+              ) : !activitiesQuery.data?.length ? (
+                <div className="col-span-full rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
+                  Our latest news and events will appear here soon.
+                </div>
+              ) : (
+                activitiesQuery.data.slice(0, 3).map((activity) => (
+                  <Card
+                    key={activity.id}
+                    className="overflow-hidden border border-border/60 bg-white shadow-none transition hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
+                  >
+                    <div className="relative h-40 overflow-hidden md:h-48">
+                      {activity.image_url ? (
+                        <img
+                          src={activity.image_url}
+                          alt={activity.title}
+                          className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-accent/40 text-xs uppercase tracking-[0.35em] text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3 rounded-full bg-secondary px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-secondary-foreground shadow md:top-4 md:left-4 md:px-3 md:text-xs">
+                        <Calendar className="mr-1.5 inline h-2.5 w-2.5 md:mr-2 md:h-3 md:w-3" />
+                        {new Date(activity.activity_date).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </div>
+                    </div>
+                    <CardContent className="p-4 md:p-6">
+                      <h3 className="text-base font-semibold text-primary md:text-lg">{activity.title}</h3>
+                      {activity.description ? (
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground md:mt-3 md:text-sm">
+                          {activity.description}
+                        </p>
+                      ) : null}
+                      <Button
+                        asChild
+                        variant="link"
+                        className="mt-3 px-0 text-xs text-primary hover:text-secondary md:mt-4 md:text-sm"
+                      >
+                        <Link to="/activities">
+                          View Activities
+                          <ArrowRight className="ml-1.5 inline h-3.5 w-3.5 md:ml-2 md:h-4 md:w-4" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
         </div>
       </section>
+
+        {/* Reviews */}
+        <section className="bg-white py-12 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="text-center">
+              <span className="text-[0.65rem] uppercase tracking-[0.25em] text-primary md:text-xs md:tracking-[0.35em]">
+                Voices From Our Community
+              </span>
+              <h2 className="mt-3 text-2xl font-semibold text-primary md:mt-4 md:text-4xl">
+                Parent trust, alumni pride, and partner confidence.
+              </h2>
+              <p className="mx-auto mt-3 max-w-3xl text-sm text-muted-foreground md:mt-4 md:text-lg">
+                Hear what families and well-wishers say about their experience with Anupam Senior Secondary School.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 md:mt-12 md:gap-6 lg:grid-cols-3">
+              {reviewsQuery.isLoading ? (
+                <div className="col-span-full flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <p className="text-xs uppercase tracking-[0.3em]">Gathering feedback</p>
+                </div>
+              ) : reviewsQuery.isError ? (
+                <div className="col-span-full rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center text-destructive">
+                  Reviews are unavailable at the moment. Please refresh later.
+                </div>
+              ) : !reviewsQuery.data?.length ? (
+                <div className="col-span-full rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
+                  Be the first to share your feedback with the school community.
+                </div>
+              ) : (
+                reviewsQuery.data.slice(0, 3).map((review) => (
+                  <Card
+                    key={review.id}
+                    className="flex h-full flex-col justify-between border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    <CardContent className="flex h-full flex-col gap-4 p-5 md:p-6">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10 text-secondary md:h-12 md:w-12">
+                        <Quote className="h-5 w-5 md:h-6 md:w-6" />
+                      </span>
+                      <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
+                        “{review.content}”
+                      </p>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-primary md:text-base">{review.author_name}</p>
+                        {review.author_role ? (
+                          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{review.author_role}</p>
+                        ) : null}
+                        {review.rating !== null ? (
+                          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-secondary">
+                            Rating {review.rating.toFixed(1)} / 5
+                          </p>
+                        ) : null}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+
+            {/* Review Submission Form */}
+            <div className="mt-12 max-w-3xl mx-auto">
+              <ReviewSubmissionForm />
+            </div>
+          </div>
+        </section>
 
       </main>
 

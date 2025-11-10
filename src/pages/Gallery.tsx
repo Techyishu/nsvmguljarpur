@@ -2,9 +2,12 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { PageHero } from "@/components/PageHero";
-import { mockGallery } from "@/data/mockData";
+import { usePublishedGallery } from "@/hooks/useContentQueries";
+import { Loader2 } from "lucide-react";
 
 const Gallery = () => {
+  const galleryQuery = usePublishedGallery();
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -17,25 +20,42 @@ const Gallery = () => {
 
       <main className="flex-grow py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-7xl mx-auto md:gap-6">
-            {mockGallery.map((item) => (
-              <Card key={item.id} className="overflow-hidden group border-border hover:border-secondary transition-all">
-                <div className="relative overflow-hidden aspect-[4/3]">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 md:p-6">
-                    <div className="text-white">
-                      <h3 className="font-bold text-base mb-0.5 uppercase tracking-wide md:text-xl md:mb-1 md:tracking-wider">{item.title}</h3>
-                      <p className="text-xs text-secondary uppercase tracking-wide md:text-sm md:tracking-wider">{item.category}</p>
+          {galleryQuery.isLoading ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <p className="text-xs uppercase tracking-[0.3em]">Loading gallery</p>
+            </div>
+          ) : galleryQuery.isError ? (
+            <div className="max-w-2xl mx-auto rounded-lg border border-destructive/40 bg-destructive/10 p-8 text-center text-destructive">
+              Unable to load gallery images. Please try again later.
+            </div>
+          ) : !galleryQuery.data?.length ? (
+            <div className="max-w-2xl mx-auto rounded-lg border border-dashed border-border p-12 text-center text-muted-foreground">
+              No gallery images available yet. Check back soon!
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-7xl mx-auto md:gap-6">
+              {galleryQuery.data.map((item) => (
+                <Card key={item.id} className="overflow-hidden group border-border hover:border-secondary transition-all">
+                  <div className="relative overflow-hidden aspect-[4/3]">
+                    <img
+                      src={item.image_url}
+                      alt={item.title}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 md:p-6">
+                      <div className="text-white">
+                        <h3 className="font-bold text-base mb-0.5 uppercase tracking-wide md:text-xl md:mb-1 md:tracking-wider">{item.title}</h3>
+                        {item.category && (
+                          <p className="text-xs text-secondary uppercase tracking-wide md:text-sm md:tracking-wider">{item.category}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
