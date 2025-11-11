@@ -19,21 +19,11 @@ const navItems: NavItem[] = [
   { name: "Home", path: "/" },
   { name: "About", path: "/about" },
   { name: "Academics", path: "/academics" },
-  {
-    name: "Campus",
-    children: [
-      { name: "Facilities", path: "/facilities" },
-      { name: "Activities", path: "/activities" },
-      { name: "Gallery", path: "/gallery" },
-    ],
-  },
-  {
-    name: "Community",
-    children: [
-      { name: "Toppers", path: "/toppers" },
-      { name: "Staff", path: "/staff" },
-    ],
-  },
+  { name: "Facilities", path: "/facilities" },
+  { name: "Activities", path: "/activities" },
+  { name: "Gallery", path: "/gallery" },
+  { name: "Toppers", path: "/toppers" },
+  { name: "Staff", path: "/staff" },
   { name: "Contact", path: "/contact" },
 ];
 
