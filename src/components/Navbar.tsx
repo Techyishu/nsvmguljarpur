@@ -37,12 +37,12 @@ export const Navbar = () => {
 
       <nav className="bg-primary text-primary-foreground border-b border-border shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <NavLink to="/" className="flex items-center space-x-3">
+          <div className="flex items-center justify-between min-h-[5rem] md:min-h-[6rem] py-3 md:py-4">
+            <NavLink to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
               <img
-                src="/images/anupam-sr.-sec-school-2.png"
+                src="/images/WhatsApp Image 2025-11-11 at 12.33.07.jpeg"
                 alt="Anupam Shiksha Niketan logo"
-                className="h-10 w-auto md:h-12"
+                className="h-20 w-20 md:h-24 md:w-24 rounded-full object-cover border-2 border-primary-foreground/20 shadow-md"
               />
             </NavLink>
 
