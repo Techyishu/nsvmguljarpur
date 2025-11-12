@@ -48,10 +48,10 @@ export const ReviewSubmissionForm = () => {
 
     try {
       await insertHomepageReview({
-        author_name: values.author_name,
+        author_name: values.author_name.trim(),
         author_role: values.author_role?.trim() || null,
-        content: values.content,
-        rating: values.rating,
+        content: values.content.trim(),
+        rating: Number(values.rating),
         is_featured: false, // Not featured by default - admin must approve
         sort_order: 999, // Low priority until admin reviews
       });
@@ -103,7 +103,11 @@ export const ReviewSubmissionForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
+            className="space-y-4"
+            noValidate
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
@@ -149,7 +153,11 @@ export const ReviewSubmissionForm = () => {
                         <button
                           key={star}
                           type="button"
-                          onClick={() => field.onChange(star)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            field.onChange(star);
+                          }}
                           disabled={isSubmitting}
                           className="transition-transform hover:scale-110 disabled:opacity-50"
                         >
