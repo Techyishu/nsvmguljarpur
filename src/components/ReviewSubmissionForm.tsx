@@ -59,9 +59,21 @@ export const ReviewSubmissionForm = () => {
       setSubmitSuccess(true);
       form.reset();
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Failed to submit review. Please try again."
-      );
+      let errorMessage = "Failed to submit review. Please try again.";
+      
+      if (error instanceof Error) {
+        // Check for specific Supabase errors
+        if (error.message.includes("401") || error.message.includes("Unauthorized")) {
+          errorMessage = "Unable to submit review. Please check your Supabase Row Level Security (RLS) policies to allow public inserts on the homepage_reviews table.";
+        } else if (error.message.includes("permission denied") || error.message.includes("policy")) {
+          errorMessage = "Permission denied. Please ensure your Supabase RLS policies allow public review submissions.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      console.error("Review submission error:", error);
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

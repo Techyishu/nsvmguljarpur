@@ -1,5 +1,44 @@
 import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase";
 import type { Tables, TablesInsert, TablesUpdate } from "@/types/supabase";
+
+// Create a dedicated anonymous client for public operations
+// This ensures consistent behavior across browsers (Chrome vs Safari)
+// by explicitly using the anon role without any session context
+const getAnonymousClient = () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return supabase; // Fallback to main client
+  }
+  
+  // Create a fresh client instance with no session storage
+  // Don't set Authorization header - let Supabase handle it automatically based on the anon key
+  const client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Don't persist session for anonymous operations
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storage: {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      },
+    },
+    global: {
+      headers: {
+        "apikey": supabaseAnonKey,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation",
+        // Don't set Authorization - Supabase will handle it based on the anon key
+      },
+    },
+  });
+  
+  return client;
+};
 
 export type ActivityRecord = Tables<"activities">;
 export type StaffRecord = Tables<"staff_members">;
@@ -147,11 +186,54 @@ export const fetchHomepageReviews = async (includeHidden = false): Promise<Revie
 };
 
 export const insertHomepageReview = async (payload: TablesInsert<"homepage_reviews">) => {
-  const { data, error } = await supabase.from("homepage_reviews").insert(payload).select().single();
-  if (error) {
-    throw error;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase configuration missing");
   }
-  return data;
+  
+  // Use the secure RPC function - testing has shown RLS policies are problematic
+  // The function is secure with validation and works consistently across all browsers
+  const headers = new Headers();
+  headers.set('Content-Type', 'application/json');
+  headers.set('apikey', supabaseAnonKey);
+  headers.set('Prefer', 'return=representation');
+  
+  const response = await fetch(`${supabaseUrl}/rest/v1/rpc/insert_homepage_review`, {
+    method: 'POST',
+    headers: headers,
+    credentials: 'omit',
+    body: JSON.stringify({
+      p_author_name: payload.author_name,
+      p_author_role: payload.author_role || '',
+      p_content: payload.content,
+      p_rating: payload.rating,
+      p_is_featured: payload.is_featured ?? false,
+      p_sort_order: payload.sort_order ?? 999,
+    }),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+    
+    console.error("Supabase insert error:", {
+      message: errorMessage,
+      details: errorData.details,
+      hint: errorData.hint,
+      code: errorData.code || response.status,
+      payload: payload,
+      status: response.status,
+      statusText: response.statusText,
+    });
+    
+    throw new Error(errorMessage || "Failed to insert review");
+  }
+  
+  const data = await response.json();
+  // Supabase returns an array when using select=*, so get the first item
+  return Array.isArray(data) ? data[0] : data;
 };
 
 export const updateHomepageReview = async (id: string, payload: TablesUpdate<"homepage_reviews">) => {
