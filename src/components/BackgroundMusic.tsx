@@ -10,14 +10,20 @@ const applyVolumeCurve = (volume: number): number => {
   return Math.pow(Math.max(0, Math.min(1, volume)), 2.5);
 };
 
-export const BackgroundMusic = () => {
+interface BackgroundMusicProps {
+  userHasEntered: boolean;
+  onAudioReady?: () => void;
+}
+
+export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusicProps) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAttemptedPlay = useRef(false);
-  const userHasInteractedRef = useRef(false);
   const durationTimerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const endTimeRef = useRef<number>(0);
   const durationRef = useRef<number>(0);
+  const retryCountRef = useRef<number>(0);
+  const retryTimeoutRef = useRef<number | null>(null);
 
   const { data: musicSettings } = useQuery({
     queryKey: ["backgroundMusicSettings"],
@@ -25,101 +31,60 @@ export const BackgroundMusic = () => {
     refetchInterval: 30000, // Refetch every 30 seconds to check for updates
   });
 
-  // Set up user interaction listeners IMMEDIATELY (not dependent on audio being ready)
-  // This ensures we capture user interactions even before audio loads
+  // Log when settings are loaded
   useEffect(() => {
-    const handleUserInteraction = (event: Event) => {
-      // Always mark that user has interacted
-      userHasInteractedRef.current = true;
+    if (musicSettings) {
+      console.log('🎶 Music settings loaded:', {
+        enabled: musicSettings.enabled,
+        url: musicSettings.url ? 'URL present' : 'No URL',
+        volume: musicSettings.volume,
+        startTime: musicSettings.startTime,
+        endTime: musicSettings.endTime,
+        duration: musicSettings.duration
+      });
+    }
+  }, [musicSettings]);
+
+  // Effect to unmute audio when user enters via welcome screen
+  useEffect(() => {
+    if (userHasEntered && audioRef.current && audioRef.current.muted) {
+      console.log('🔓 Welcome screen dismissed - unmuting audio...');
       
-      // If music settings aren't ready or audio isn't ready, just record the interaction
-      if (!musicSettings?.enabled || !musicSettings?.url || !audioRef.current) {
-        return;
+      // Unmute the audio (user clicked "Enter Classroom" button = valid user gesture)
+      audioRef.current.muted = false;
+      console.log('🔊 Audio unmuted! Music should now be audible');
+      console.log('📊 Audio state:', {
+        volume: audioRef.current.volume,
+        currentTime: audioRef.current.currentTime,
+        duration: audioRef.current.duration,
+        muted: audioRef.current.muted,
+        paused: audioRef.current.paused
+      });
+      
+      // If audio isn't playing, try to start it
+      if (audioRef.current.paused) {
+        audioRef.current.play().then(() => {
+          console.log('✅ Audio started playing after welcome screen');
+        }).catch((error) => {
+          console.warn('❌ Failed to start audio:', error.name);
+        });
       }
-
-      // Reset hasAttemptedPlay if audio is paused (allows retry)
-      if (audioRef.current.paused && hasAttemptedPlay.current) {
-        hasAttemptedPlay.current = false;
-      }
-
-      // Skip if already playing (no log spam)
-      if (!audioRef.current.paused) {
-        return;
-      }
-
-      // For mobile, ensure we're in a direct user interaction context
-      // Mobile browsers require play() to be called directly from the event handler
-      try {
-        // Set start time if specified (but only if audio is ready)
-        if (startTimeRef.current > 0 && audioRef.current.readyState >= 1) {
-          audioRef.current.currentTime = startTimeRef.current;
+      
+      // Set up duration timer if specified
+      if (durationRef.current > 0 && audioRef.current && !audioRef.current.paused) {
+        if (durationTimerRef.current) {
+          clearTimeout(durationTimerRef.current);
         }
-
-        // Call play() directly - mobile browsers allow this from user gesture even if not fully loaded
-        const playPromise = audioRef.current.play();
-        
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              hasAttemptedPlay.current = true;
-              
-              // Set up duration timer if specified
-              if (durationRef.current > 0) {
-                if (durationTimerRef.current) {
-                  clearTimeout(durationTimerRef.current);
-                }
-                durationTimerRef.current = window.setTimeout(() => {
-                  if (audioRef.current) {
-                    audioRef.current.pause();
-                    hasAttemptedPlay.current = false;
-                  }
-                  durationTimerRef.current = null;
-                }, durationRef.current * 1000);
-              }
-            })
-            .catch((error) => {
-              // Only log if not a common autoplay error
-              if (error.name !== 'NotAllowedError' && error.name !== 'AbortError') {
-                console.warn("Background music playback error:", error.name, error.message);
-              }
-              // Permission or other error - allow retry
-              hasAttemptedPlay.current = false;
-            });
-        }
-      } catch (error) {
-        console.warn("Error in user interaction handler:", error);
+        durationTimerRef.current = window.setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            hasAttemptedPlay.current = false;
+          }
+          durationTimerRef.current = null;
+        }, durationRef.current * 1000);
       }
-    };
-
-    // Listen for user interactions IMMEDIATELY
-    // Don't wait for audio to be ready - capture interactions early
-    const events = ["click", "touchstart", "touchend", "keydown", "mousedown"];
-    
-    // Add to document
-    events.forEach((event) => {
-      document.addEventListener(event, handleUserInteraction, { 
-        capture: true, 
-        passive: true,
-        once: false // Allow multiple attempts
-      });
-    });
-    
-    // Also add to window for better mobile compatibility
-    events.forEach((event) => {
-      window.addEventListener(event, handleUserInteraction, { 
-        capture: true, 
-        passive: true,
-        once: false
-      });
-    });
-
-    return () => {
-      events.forEach((event) => {
-        document.removeEventListener(event, handleUserInteraction, { capture: true });
-        window.removeEventListener(event, handleUserInteraction, { capture: true });
-      });
-    };
-  }, [musicSettings]); // Still depend on musicSettings to re-attach when settings change
+    }
+  }, [userHasEntered]);
 
   // Update timing refs when settings change
   useEffect(() => {
@@ -142,101 +107,165 @@ export const BackgroundMusic = () => {
         clearTimeout(durationTimerRef.current);
         durationTimerRef.current = null;
       }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+      retryCountRef.current = 0;
       return;
     }
 
     // Create or update audio element
     if (!audioRef.current) {
-      // Create audio element - for mobile, create as HTML element with attributes
-      const audio = document.createElement('audio');
-      audio.src = musicSettings.url;
-      audio.preload = "auto";
+      console.log('🎧 Creating new Audio element with URL:', musicSettings.url);
+      
+      // Create audio using Audio constructor with URL from Supabase
+      const audio = new Audio(musicSettings.url);
+      
+      // Start muted FIRST for autoplay to work (browsers allow muted autoplay)
+      audio.muted = true;
+      
+      // Configure audio properties
       audio.volume = applyVolumeCurve(musicSettings.volume);
+      audio.preload = "auto";
+      
+      console.log('🔇 Audio created MUTED, volume:', audio.volume);
+      
+      // Set loop behavior based on endTime configuration
+      audio.loop = !musicSettings.endTime || musicSettings.endTime === 0;
       
       // Mobile-specific attributes (important for iOS and Android)
       audio.setAttribute('playsinline', 'true');
       audio.setAttribute('webkit-playsinline', 'true');
-      audio.setAttribute('crossorigin', 'anonymous');
-      audio.setAttribute('preload', 'auto');
+      audio.crossOrigin = 'anonymous';
       
-      // Enable range requests for better mobile streaming
-      // This allows the browser to request specific byte ranges
-      
-      // Set loop behavior based on endTime
-      audio.loop = !musicSettings.endTime || musicSettings.endTime === 0;
-      
-      // Add error handler (silent unless critical)
-      audio.addEventListener('error', () => {
-        const error = audio.error;
-        if (error && error.code !== 1) { // Only log non-abort errors
-          console.error('Background music error:', error.code);
-        }
+      console.log('⚙️ Audio configured:', {
+        muted: audio.muted,
+        volume: audio.volume,
+        loop: audio.loop,
+        preload: audio.preload
       });
       
-      // Attempt autoplay when ready
-      audio.addEventListener('canplay', () => {
-        // Try to autoplay immediately when audio is ready (no user interaction required)
-        if (audio.paused && !hasAttemptedPlay.current) {
-          const playPromise = audio.play();
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                hasAttemptedPlay.current = true;
-                
-                // Set up duration timer if specified
-                if (durationRef.current > 0) {
-                  if (durationTimerRef.current) {
-                    clearTimeout(durationTimerRef.current);
-                  }
-                  durationTimerRef.current = window.setTimeout(() => {
-                    if (audioRef.current) {
-                      audioRef.current.pause();
-                      hasAttemptedPlay.current = false;
-                    }
-                    durationTimerRef.current = null;
-                  }, durationRef.current * 1000);
-                }
-              })
-              .catch(() => {
-                // Autoplay blocked, will play on user interaction (silent)
+      // Add error handler with retry logic for network errors
+      audio.addEventListener('error', () => {
+        const error = audio.error;
+        if (error) {
+          // Error codes: 1=ABORTED, 2=NETWORK, 3=DECODE, 4=SRC_NOT_SUPPORTED
+          if (error.code === 2 && retryCountRef.current < 3) {
+            // Network error - retry with exponential backoff
+            const retryDelay = Math.pow(2, retryCountRef.current) * 1000; // 1s, 2s, 4s
+            retryCountRef.current++;
+            
+            if (retryTimeoutRef.current) {
+              clearTimeout(retryTimeoutRef.current);
+            }
+            
+            retryTimeoutRef.current = window.setTimeout(() => {
+              if (audioRef.current) {
+                audioRef.current.load();
                 hasAttemptedPlay.current = false;
-              });
+              }
+              retryTimeoutRef.current = null;
+            }, retryDelay);
+          } else if (error.code !== 1) {
+            // Log other errors (not abort)
+            console.error('Background music error:', error.code);
+            retryCountRef.current = 0; // Reset retry count
           }
         }
       });
       
-      audio.addEventListener('canplaythrough', () => {
-        // Also try from canplaythrough if canplay didn't work
+      // Reset retry count on successful load
+      audio.addEventListener('loadeddata', () => {
+        retryCountRef.current = 0;
+        console.log('🎵 Audio loaded, attempting muted autoplay...');
+      });
+      
+      // Log when audio actually starts playing
+      audio.addEventListener('playing', () => {
+        console.log('▶️▶️ Audio is now PLAYING!', {
+          muted: audio.muted,
+          volume: audio.volume,
+          currentTime: audio.currentTime,
+          paused: audio.paused,
+          readyState: audio.readyState
+        });
+        
+        // CRITICAL CHECK: If audio is playing unmuted, verify user has entered
+        if (!audio.muted && !userHasEntered) {
+          console.warn('⚠️ Audio is unmuted but user hasn\'t entered yet! Remuting...');
+          audio.muted = true;
+        }
+      });
+      
+      // Log if audio is paused
+      audio.addEventListener('pause', () => {
+        console.log('⏸️ Audio paused');
+      });
+      
+      // Log when audio can start playing and attempt autoplay
+      audio.addEventListener('canplay', () => {
+        console.log('✅ Audio ready to play, state:', {
+          paused: audio.paused,
+          muted: audio.muted,
+          volume: audio.volume,
+          readyState: audio.readyState
+        });
+        
+        // Notify parent that audio is ready
+        if (onAudioReady && audio.readyState >= 3) {
+          onAudioReady();
+        }
+        
+        // Set start time if specified (do this before playing)
+        if (startTimeRef.current > 0) {
+          audio.currentTime = startTimeRef.current;
+          console.log('⏩ Set start time to:', startTimeRef.current);
+        }
+        
+        // Attempt autoplay when ready (only once)
         if (audio.paused && !hasAttemptedPlay.current) {
+          console.log('▶️ Starting muted autoplay from canplay event...');
           audio.play()
             .then(() => {
+              console.log('✅ Muted autoplay started successfully!');
               hasAttemptedPlay.current = true;
-              
-              // Set up duration timer if specified
-              if (durationRef.current > 0) {
-                if (durationTimerRef.current) {
-                  clearTimeout(durationTimerRef.current);
-                }
-                durationTimerRef.current = window.setTimeout(() => {
-                  if (audioRef.current) {
-                    audioRef.current.pause();
-                    hasAttemptedPlay.current = false;
-                  }
-                  durationTimerRef.current = null;
-                }, durationRef.current * 1000);
-              }
             })
-            .catch(() => {
-              // Autoplay blocked (silent)
+            .catch((error) => {
+              console.warn('❌ Muted autoplay failed:', error.name, error.message);
               hasAttemptedPlay.current = false;
             });
         }
       });
       
-      // Explicitly load for mobile compatibility
-      audio.load();
+      // Also notify on canplaythrough (fully loaded)
+      audio.addEventListener('canplaythrough', () => {
+        console.log('✅ Audio fully loaded (canplaythrough)');
+        if (onAudioReady) {
+          onAudioReady();
+        }
+      });
       
+      // Store audio reference
       audioRef.current = audio;
+      
+      // Also try immediate play (might work if cached)
+      console.log('▶️ Attempting immediate muted autoplay...');
+      audio.play()
+        .then(() => {
+          console.log('✅ Immediate autoplay started!');
+          hasAttemptedPlay.current = true;
+          // If audio is already loaded enough, notify parent
+          if (onAudioReady && audio.readyState >= 3) {
+            onAudioReady();
+          }
+        })
+        .catch(() => {
+          // Will try again in canplay event
+          console.log('⏳ Immediate play blocked, will retry when ready');
+        });
+      
+      // Audio will start muted and will be unmuted when user clicks "Enter Classroom" button
 
       // Handle timeupdate to check for endTime
       audioRef.current.addEventListener("timeupdate", () => {
@@ -275,19 +304,35 @@ export const BackgroundMusic = () => {
       const newUrl = musicSettings.url;
       
       if (currentUrl !== newUrl) {
+        // Stop current playback
         audioRef.current.pause();
-        audioRef.current.src = newUrl;
-        audioRef.current.setAttribute('playsinline', 'true');
-        audioRef.current.setAttribute('webkit-playsinline', 'true');
-        audioRef.current.load();
-        hasAttemptedPlay.current = false;
         
+        // Update URL and reset to muted state (will be unmuted when user has entered)
+        audioRef.current.src = newUrl;
+        audioRef.current.muted = !userHasEntered; // Keep unmuted if user already entered
+        
+        // Reset flags and counters
+        hasAttemptedPlay.current = false;
+        retryCountRef.current = 0;
+        
+        // Clear timers
         if (durationTimerRef.current) {
           clearTimeout(durationTimerRef.current);
           durationTimerRef.current = null;
         }
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = null;
+        }
         
+        // Update loop behavior
         audioRef.current.loop = !musicSettings.endTime || musicSettings.endTime === 0;
+        
+        // Load and play new audio
+        audioRef.current.load();
+        audioRef.current.play().catch(() => {
+          hasAttemptedPlay.current = false;
+        });
       }
       
       // Update volume with curve applied
@@ -316,6 +361,10 @@ export const BackgroundMusic = () => {
       if (durationTimerRef.current) {
         clearTimeout(durationTimerRef.current);
         durationTimerRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
       }
     };
   }, []);
