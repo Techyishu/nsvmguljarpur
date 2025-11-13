@@ -36,83 +36,94 @@ export const BackgroundMusic = () => {
         return;
       }
 
+      console.log('User interaction detected:', event.type, {
+        readyState: audioRef.current.readyState,
+        networkState: audioRef.current.networkState,
+        paused: audioRef.current.paused,
+      });
+
       // For mobile, ensure we're in a direct user interaction context
       // Mobile browsers require play() to be called directly from the event handler
       try {
-        // Set start time if specified
-        if (startTimeRef.current > 0) {
+        // Set start time if specified (but only if audio is ready)
+        if (startTimeRef.current > 0 && audioRef.current.readyState >= 1) {
           audioRef.current.currentTime = startTimeRef.current;
         }
 
-        // Ensure audio is loaded (important for mobile)
-        // readyState: 0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA
-        if (audioRef.current.readyState < 2) {
-          // Audio not loaded yet, wait for it
-          const playWhenReady = () => {
-            attemptPlay();
-          };
-          audioRef.current.addEventListener('canplay', playWhenReady, { once: true });
-          audioRef.current.addEventListener('canplaythrough', playWhenReady, { once: true });
-          // Force load if not already loading
-          if (audioRef.current.readyState === 0) {
-            audioRef.current.load();
-          }
-          return;
+        // For mobile, we MUST call play() synchronously within the event handler
+        // Don't wait for readyState - mobile browsers are more lenient if called from user gesture
+        console.log('Attempting to play from user interaction, readyState:', audioRef.current.readyState);
+        
+        // Set start time if specified
+        if (startTimeRef.current > 0 && audioRef.current.readyState >= 1) {
+          audioRef.current.currentTime = startTimeRef.current;
         }
-
-        // Audio is ready, attempt to play immediately
-        attemptPlay();
+        
+        // Call play() directly - mobile browsers allow this from user gesture even if not fully loaded
+        const playPromise = audioRef.current.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('Audio playback started successfully from user interaction');
+              hasAttemptedPlay.current = true;
+              
+              // Set up duration timer if specified
+              if (durationRef.current > 0) {
+                if (durationTimerRef.current) {
+                  clearTimeout(durationTimerRef.current);
+                }
+                durationTimerRef.current = window.setTimeout(() => {
+                  if (audioRef.current) {
+                    audioRef.current.pause();
+                    hasAttemptedPlay.current = false;
+                  }
+                  durationTimerRef.current = null;
+                }, durationRef.current * 1000);
+              }
+            })
+            .catch((error) => {
+              console.warn("Playback error from user interaction:", {
+                name: error.name,
+                message: error.message,
+                code: (error as any).code,
+                readyState: audioRef.current?.readyState,
+                networkState: audioRef.current?.networkState,
+              });
+              
+              // If audio wasn't ready, try to load and play when ready
+              if (audioRef.current && audioRef.current.readyState < 2) {
+                console.log('Audio not ready, setting up load listener');
+                const playWhenReady = () => {
+                  if (audioRef.current && !hasAttemptedPlay.current) {
+                    audioRef.current.play()
+                      .then(() => {
+                        console.log('Audio started after loading');
+                        hasAttemptedPlay.current = true;
+                      })
+                      .catch((err) => {
+                        console.warn('Failed to play after loading:', err);
+                      });
+                  }
+                };
+                audioRef.current.addEventListener('canplay', playWhenReady, { once: true });
+                audioRef.current.addEventListener('canplaythrough', playWhenReady, { once: true });
+                if (audioRef.current.readyState === 0) {
+                  audioRef.current.load();
+                }
+              } else {
+                // Permission or other error
+                if (error.name === 'NotAllowedError' || error.name === 'AbortError') {
+                  hasAttemptedPlay.current = false;
+                }
+              }
+            });
+        }
       } catch (error) {
         console.warn("Error in user interaction handler:", error);
       }
     };
 
-    const attemptPlay = () => {
-      if (!audioRef.current || hasAttemptedPlay.current) {
-        return;
-      }
-
-      // Attempt to play - must be called directly from user interaction on mobile
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // Playback started successfully
-            hasAttemptedPlay.current = true;
-            
-            // Set up duration timer if specified
-            if (durationRef.current > 0) {
-              if (durationTimerRef.current) {
-                clearTimeout(durationTimerRef.current);
-              }
-              durationTimerRef.current = window.setTimeout(() => {
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                  hasAttemptedPlay.current = false;
-                }
-                durationTimerRef.current = null;
-              }, durationRef.current * 1000);
-            }
-          })
-          .catch((error) => {
-            // Log error for debugging (especially on mobile)
-            console.warn("Background music playback error:", {
-              name: error.name,
-              message: error.message,
-              userAgent: navigator.userAgent,
-            });
-            
-            // Don't mark as attempted if it was a permission error
-            // This allows retry on next interaction
-            if (error.name === 'NotAllowedError' || error.name === 'AbortError') {
-              hasAttemptedPlay.current = false;
-            } else {
-              hasAttemptedPlay.current = true; // Other errors, don't retry
-            }
-          });
-      }
-    };
 
     // Listen for user interactions - mobile browsers need direct event handling
     // Use both capture and bubble phases, and handle touch events specifically
@@ -165,23 +176,52 @@ export const BackgroundMusic = () => {
       audio.preload = "auto";
       audio.volume = applyVolumeCurve(musicSettings.volume);
       
-      // Mobile-specific attributes (important for iOS)
+      // Mobile-specific attributes (important for iOS and Android)
       audio.setAttribute('playsinline', 'true');
       audio.setAttribute('webkit-playsinline', 'true');
       audio.setAttribute('crossorigin', 'anonymous');
+      audio.setAttribute('preload', 'auto');
+      
+      // Enable range requests for better mobile streaming
+      // This allows the browser to request specific byte ranges
       
       // Set loop behavior based on endTime
       audio.loop = !musicSettings.endTime || musicSettings.endTime === 0;
+      
+      // Add error handler for better debugging
+      audio.addEventListener('error', (e) => {
+        const error = audio.error;
+        if (error) {
+          console.error('Audio error details:', {
+            code: error.code,
+            message: error.message,
+            MEDIA_ERR_ABORTED: error.MEDIA_ERR_ABORTED,
+            MEDIA_ERR_NETWORK: error.MEDIA_ERR_NETWORK,
+            MEDIA_ERR_DECODE: error.MEDIA_ERR_DECODE,
+            MEDIA_ERR_SRC_NOT_SUPPORTED: error.MEDIA_ERR_SRC_NOT_SUPPORTED,
+            url: musicSettings.url,
+            userAgent: navigator.userAgent,
+          });
+        }
+      });
+      
+      // Add load event handlers for mobile
+      audio.addEventListener('loadstart', () => {
+        console.log('Audio load started');
+      });
+      
+      audio.addEventListener('loadeddata', () => {
+        console.log('Audio data loaded');
+      });
+      
+      audio.addEventListener('canplay', () => {
+        console.log('Audio can play');
+      });
       
       // Explicitly load for mobile compatibility
       audio.load();
       
       audioRef.current = audio;
-      
-      // Handle audio events
-      audioRef.current.addEventListener("error", (e) => {
-        console.error("Error loading audio:", e);
-      });
 
       // Handle timeupdate to check for endTime
       audioRef.current.addEventListener("timeupdate", () => {
