@@ -24,47 +24,111 @@ export const BackgroundMusic = () => {
     refetchInterval: 30000, // Refetch every 30 seconds to check for updates
   });
 
-  // Handle user interaction for autoplay
+  // Handle user interaction for autoplay - mobile-friendly version
   useEffect(() => {
-    const handleUserInteraction = () => {
-      if (!hasAttemptedPlay.current && audioRef.current && musicSettings?.enabled && musicSettings?.url) {
-        hasAttemptedPlay.current = true;
-        
+    if (!musicSettings?.enabled || !musicSettings?.url || !audioRef.current) {
+      return;
+    }
+
+    const handleUserInteraction = (event: Event) => {
+      // Only handle if audio element exists and hasn't started playing yet
+      if (!audioRef.current || hasAttemptedPlay.current) {
+        return;
+      }
+
+      // For mobile, ensure we're in a direct user interaction context
+      // Mobile browsers require play() to be called directly from the event handler
+      try {
         // Set start time if specified
         if (startTimeRef.current > 0) {
           audioRef.current.currentTime = startTimeRef.current;
         }
-        
-        audioRef.current.play().then(() => {
-          // Set up duration timer if specified
-          if (durationRef.current > 0) {
-            if (durationTimerRef.current) {
-              clearTimeout(durationTimerRef.current);
-            }
-            durationTimerRef.current = window.setTimeout(() => {
-              if (audioRef.current) {
-                audioRef.current.pause();
-                hasAttemptedPlay.current = false;
-              }
-              durationTimerRef.current = null;
-            }, durationRef.current * 1000);
+
+        // Ensure audio is loaded (important for mobile)
+        // readyState: 0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA
+        if (audioRef.current.readyState < 2) {
+          // Audio not loaded yet, wait for it
+          const playWhenReady = () => {
+            attemptPlay();
+          };
+          audioRef.current.addEventListener('canplay', playWhenReady, { once: true });
+          audioRef.current.addEventListener('canplaythrough', playWhenReady, { once: true });
+          // Force load if not already loading
+          if (audioRef.current.readyState === 0) {
+            audioRef.current.load();
           }
-        }).catch((error) => {
-          console.error("Error playing background music:", error);
-          hasAttemptedPlay.current = false;
-        });
+          return;
+        }
+
+        // Audio is ready, attempt to play immediately
+        attemptPlay();
+      } catch (error) {
+        console.warn("Error in user interaction handler:", error);
       }
     };
 
-    // Listen for any user interaction
-    const events = ["click", "touchstart", "keydown", "scroll"];
+    const attemptPlay = () => {
+      if (!audioRef.current || hasAttemptedPlay.current) {
+        return;
+      }
+
+      // Attempt to play - must be called directly from user interaction on mobile
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Playback started successfully
+            hasAttemptedPlay.current = true;
+            
+            // Set up duration timer if specified
+            if (durationRef.current > 0) {
+              if (durationTimerRef.current) {
+                clearTimeout(durationTimerRef.current);
+              }
+              durationTimerRef.current = window.setTimeout(() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                  hasAttemptedPlay.current = false;
+                }
+                durationTimerRef.current = null;
+              }, durationRef.current * 1000);
+            }
+          })
+          .catch((error) => {
+            // Log error for debugging (especially on mobile)
+            console.warn("Background music playback error:", {
+              name: error.name,
+              message: error.message,
+              userAgent: navigator.userAgent,
+            });
+            
+            // Don't mark as attempted if it was a permission error
+            // This allows retry on next interaction
+            if (error.name === 'NotAllowedError' || error.name === 'AbortError') {
+              hasAttemptedPlay.current = false;
+            } else {
+              hasAttemptedPlay.current = true; // Other errors, don't retry
+            }
+          });
+      }
+    };
+
+    // Listen for user interactions - mobile browsers need direct event handling
+    // Use both capture and bubble phases, and handle touch events specifically
+    const events = ["click", "touchstart", "touchend", "keydown", "mousedown"];
     events.forEach((event) => {
-      document.addEventListener(event, handleUserInteraction, { once: true });
+      // Use capture phase for better mobile compatibility
+      document.addEventListener(event, handleUserInteraction, { 
+        capture: true, 
+        passive: true,
+        once: false // Allow multiple attempts
+      });
     });
 
     return () => {
       events.forEach((event) => {
-        document.removeEventListener(event, handleUserInteraction);
+        document.removeEventListener(event, handleUserInteraction, { capture: true });
       });
     };
   }, [musicSettings]);
@@ -95,14 +159,24 @@ export const BackgroundMusic = () => {
 
     // Create or update audio element
     if (!audioRef.current) {
-      audioRef.current = new Audio(musicSettings.url);
-      // Apply volume curve to make lower volumes actually quieter
-      audioRef.current.volume = applyVolumeCurve(musicSettings.volume);
-      audioRef.current.preload = "auto";
+      // Create audio element - for mobile, create as HTML element with attributes
+      const audio = document.createElement('audio');
+      audio.src = musicSettings.url;
+      audio.preload = "auto";
+      audio.volume = applyVolumeCurve(musicSettings.volume);
+      
+      // Mobile-specific attributes (important for iOS)
+      audio.setAttribute('playsinline', 'true');
+      audio.setAttribute('webkit-playsinline', 'true');
+      audio.setAttribute('crossorigin', 'anonymous');
       
       // Set loop behavior based on endTime
-      // If endTime is set, we'll handle looping manually
-      audioRef.current.loop = !musicSettings.endTime || musicSettings.endTime === 0;
+      audio.loop = !musicSettings.endTime || musicSettings.endTime === 0;
+      
+      // Explicitly load for mobile compatibility
+      audio.load();
+      
+      audioRef.current = audio;
       
       // Handle audio events
       audioRef.current.addEventListener("error", (e) => {
@@ -137,74 +211,26 @@ export const BackgroundMusic = () => {
         }
       });
 
-      // Try to play after user interaction
-      const tryPlay = () => {
-        if (audioRef.current && !hasAttemptedPlay.current) {
-          hasAttemptedPlay.current = true;
-          
-          // Set start time if specified
-          if (startTimeRef.current > 0) {
-            audioRef.current.currentTime = startTimeRef.current;
-          }
-          
-          audioRef.current.play().catch((error) => {
-            console.error("Error playing background music:", error);
-          });
-          
-          // Set up duration timer if specified
-          if (durationRef.current > 0) {
-            if (durationTimerRef.current) {
-              clearTimeout(durationTimerRef.current);
-            }
-            durationTimerRef.current = window.setTimeout(() => {
-              if (audioRef.current) {
-                audioRef.current.pause();
-                hasAttemptedPlay.current = false;
-              }
-              durationTimerRef.current = null;
-            }, durationRef.current * 1000);
-          }
-        }
-      };
-
-      // Try autoplay immediately (may fail due to browser policy)
-      if (startTimeRef.current > 0) {
-        audioRef.current.currentTime = startTimeRef.current;
-      }
-      audioRef.current.play().then(() => {
-        // Autoplay succeeded, set up duration timer if needed
-        if (durationRef.current > 0) {
-          if (durationTimerRef.current) {
-            clearTimeout(durationTimerRef.current);
-          }
-          durationTimerRef.current = window.setTimeout(() => {
-            if (audioRef.current) {
-              audioRef.current.pause();
-              hasAttemptedPlay.current = false;
-            }
-            durationTimerRef.current = null;
-          }, durationRef.current * 1000);
-        }
-        hasAttemptedPlay.current = true;
-      }).catch(() => {
-        // Autoplay blocked, will play on user interaction
-        console.log("Autoplay blocked, waiting for user interaction");
-      });
-
-      // Also try on any user interaction
-      const events = ["click", "touchstart", "keydown"];
-      events.forEach((event) => {
-        document.addEventListener(event, tryPlay, { once: true });
-      });
+      // Don't try autoplay immediately - browsers block it
+      // User interaction handlers are set up in the separate useEffect above
+      // This ensures music only plays after user interaction
     } else {
       // Update source if URL changed
-      const currentUrl = audioRef.current.src;
+      const currentUrl = audioRef.current.src || audioRef.current.getAttribute('src');
       const newUrl = musicSettings.url;
       
       if (currentUrl !== newUrl) {
         const wasPlaying = !audioRef.current.paused;
         audioRef.current.pause();
+        
+        // Update source
         audioRef.current.src = newUrl;
+        
+        // Ensure mobile attributes are still set
+        audioRef.current.setAttribute('playsinline', 'true');
+        audioRef.current.setAttribute('webkit-playsinline', 'true');
+        
+        // Reload for mobile compatibility
         audioRef.current.load();
         hasAttemptedPlay.current = false;
         
@@ -217,25 +243,11 @@ export const BackgroundMusic = () => {
         // Update loop behavior
         audioRef.current.loop = !musicSettings.endTime || musicSettings.endTime === 0;
         
-        // Try to resume playing if it was playing before
+        // Try to resume playing if it was playing before (only after user interaction)
+        // Don't auto-play on URL change - wait for user interaction
         if (wasPlaying) {
-          if (startTimeRef.current > 0) {
-            audioRef.current.currentTime = startTimeRef.current;
-          }
-          audioRef.current.play().catch((error) => {
-            console.error("Error playing new music:", error);
-          });
-          
-          // Set up duration timer if specified
-          if (durationRef.current > 0) {
-            durationTimerRef.current = window.setTimeout(() => {
-              if (audioRef.current) {
-                audioRef.current.pause();
-                hasAttemptedPlay.current = false;
-              }
-              durationTimerRef.current = null;
-            }, durationRef.current * 1000);
-          }
+          // Reset so it can play again on next interaction
+          hasAttemptedPlay.current = false;
         }
       }
       
