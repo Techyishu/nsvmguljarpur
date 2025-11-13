@@ -45,6 +45,7 @@ export type StaffRecord = Tables<"staff_members">;
 export type TopperRecord = Tables<"toppers">;
 export type ReviewRecord = Tables<"homepage_reviews">;
 export type GalleryRecord = Tables<"gallery_images">;
+export type SiteSettingRecord = Tables<"site_settings">;
 
 export const fetchActivities = async (includeDrafts = false): Promise<ActivityRecord[]> => {
   const query = includeDrafts
@@ -289,6 +290,54 @@ export const deleteGalleryImage = async (id: string) => {
   if (error) {
     throw error;
   }
+};
+
+export const fetchSiteSettings = async (): Promise<Record<string, string>> => {
+  const { data, error } = await supabase.from("site_settings").select("*");
+  
+  if (error) {
+    throw error;
+  }
+  
+  // Convert array to object with setting_key as key
+  const settings: Record<string, string> = {};
+  data?.forEach((setting) => {
+    settings[setting.setting_key] = setting.setting_value || "";
+  });
+  
+  return settings;
+};
+
+export const updateSiteSetting = async (key: string, value: string) => {
+  const { data, error } = await supabase
+    .from("site_settings")
+    .upsert(
+      {
+        setting_key: key,
+        setting_value: value,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "setting_key",
+      }
+    )
+    .select()
+    .single();
+    
+  if (error) {
+    throw error;
+  }
+  
+  return data;
+};
+
+export const fetchBackgroundMusicSettings = async () => {
+  const settings = await fetchSiteSettings();
+  return {
+    url: settings.background_music_url || "",
+    enabled: settings.background_music_enabled === "true",
+    volume: parseFloat(settings.background_music_volume || "0.5"),
+  };
 };
 
 

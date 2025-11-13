@@ -10,6 +10,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHero } from "@/components/PageHero";
 import { ImageUpload } from "@/components/ImageUpload";
+import { BackgroundMusicSettings } from "@/components/BackgroundMusicSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -680,7 +681,7 @@ const Admin = () => {
               </div>
 
               <Tabs defaultValue="activities" className="w-full space-y-6">
-                <TabsList className="flex w-full overflow-x-auto overscroll-x-contain gap-2 rounded-md border border-border bg-card p-2 sm:grid sm:grid-cols-5 sm:overflow-visible">
+                <TabsList className="flex w-full overflow-x-auto overscroll-x-contain gap-2 rounded-md border border-border bg-card p-2 sm:grid sm:grid-cols-6 sm:overflow-visible">
                   <TabsTrigger
                     value="activities"
                     className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
@@ -710,6 +711,12 @@ const Admin = () => {
                     className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
                   >
                     Gallery
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="settings"
+                    className="flex-1 min-w-[120px] whitespace-nowrap rounded-md py-2 px-3 text-center text-xs font-bold uppercase tracking-wider data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground sm:min-w-0 sm:text-sm"
+                  >
+                    Settings
                   </TabsTrigger>
                 </TabsList>
 
@@ -1149,6 +1156,17 @@ const Admin = () => {
                         ))}
                       </div>
                       )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="settings" className="space-y-4">
+                  <Card className="bg-card border-border">
+                    <CardHeader>
+                      <CardTitle className="uppercase tracking-wider">Site Settings</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <BackgroundMusicSettings />
                     </CardContent>
                   </Card>
                 </TabsContent>
