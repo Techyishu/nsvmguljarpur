@@ -337,6 +337,9 @@ export const fetchBackgroundMusicSettings = async () => {
     url: settings.background_music_url || "",
     enabled: settings.background_music_enabled === "true",
     volume: parseFloat(settings.background_music_volume || "0.5"),
+    startTime: parseFloat(settings.background_music_start_time || "0"),
+    endTime: parseFloat(settings.background_music_end_time || "0"),
+    duration: parseFloat(settings.background_music_duration || "0"),
   };
 };
 

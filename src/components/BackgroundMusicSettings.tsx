@@ -25,6 +25,9 @@ const musicSettingsSchema = z.object({
   url: z.string().url("Please enter a valid URL").or(z.literal("")),
   enabled: z.boolean(),
   volume: z.number().min(0).max(1),
+  startTime: z.number().min(0),
+  endTime: z.number().min(0),
+  duration: z.number().min(0),
 });
 
 type MusicSettingsValues = z.infer<typeof musicSettingsSchema>;
@@ -67,12 +70,18 @@ export const BackgroundMusicSettings = () => {
       url: "",
       enabled: false,
       volume: 0.5,
+      startTime: 0,
+      endTime: 0,
+      duration: 0,
     },
     values: settings
       ? {
           url: settings.background_music_url || "",
           enabled: settings.background_music_enabled === "true",
           volume: parseFloat(settings.background_music_volume || "0.5"),
+          startTime: parseFloat(settings.background_music_start_time || "0"),
+          endTime: parseFloat(settings.background_music_end_time || "0"),
+          duration: parseFloat(settings.background_music_duration || "0"),
         }
       : undefined,
   });
@@ -176,7 +185,7 @@ export const BackgroundMusicSettings = () => {
   };
 
   const onSubmit = (values: MusicSettingsValues) => {
-    // Update all three settings
+    // Update all settings
     updateMutation.mutate({
       key: "background_music_url",
       value: values.url,
@@ -188,6 +197,18 @@ export const BackgroundMusicSettings = () => {
     updateMutation.mutate({
       key: "background_music_volume",
       value: values.volume.toString(),
+    });
+    updateMutation.mutate({
+      key: "background_music_start_time",
+      value: values.startTime.toString(),
+    });
+    updateMutation.mutate({
+      key: "background_music_end_time",
+      value: values.endTime.toString(),
+    });
+    updateMutation.mutate({
+      key: "background_music_duration",
+      value: values.duration.toString(),
     });
   };
 
@@ -320,24 +341,112 @@ export const BackgroundMusicSettings = () => {
         <FormField
           control={form.control}
           name="volume"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Default Volume: {Math.round(field.value * 100)}%</FormLabel>
-              <FormControl>
-                <Slider
-                  value={[field.value]}
-                  onValueChange={(value) => field.onChange(value[0])}
-                  min={0}
-                  max={1}
-                  step={0.1}
-                />
-              </FormControl>
-              <FormDescription>
-                Set the default volume for background music (0-100%). Only admins can control playback and volume.
-              </FormDescription>
-            </FormItem>
-          )}
+          render={({ field }) => {
+            // Calculate effective volume for display (using the same curve as BackgroundMusic)
+            const effectiveVolume = Math.pow(Math.max(0, Math.min(1, field.value)), 2.5) * 100;
+            return (
+              <FormItem>
+                <FormLabel>
+                  Default Volume: {Math.round(field.value * 100)}% 
+                  {field.value > 0 && (
+                    <span className="text-xs text-muted-foreground ml-2">
+                      (Effective: ~{Math.round(effectiveVolume)}%)
+                    </span>
+                  )}
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    value={[field.value]}
+                    onValueChange={(value) => field.onChange(value[0])}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Set the default volume for background music (0-100%). Lower values are much quieter. 
+                  Recommended: 5-15% for subtle background music. Only admins can control playback and volume.
+                </FormDescription>
+              </FormItem>
+            );
+          }}
         />
+
+        <div className="space-y-4 rounded-lg border p-4">
+          <h3 className="text-sm font-semibold">Playback Timing Controls</h3>
+          
+          <FormField
+            control={form.control}
+            name="startTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Start Time (seconds)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Set the time (in seconds) where the music should start playing. Leave as 0 to start from the beginning.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="endTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>End Time (seconds)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Set the time (in seconds) where the music should stop. Leave as 0 to play until the end. If set, music will loop between start and end time.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Auto-Stop Duration (seconds)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Set how long (in seconds) the music should play before automatically stopping. Leave as 0 to play continuously. This overrides the end time setting.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <Button
           type="submit"
