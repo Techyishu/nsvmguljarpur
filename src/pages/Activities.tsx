@@ -9,13 +9,14 @@ const Activities = () => {
   const activitiesQuery = usePublishedActivities();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-secondary/30">
       <Navbar />
 
       <PageHero
         title="Student Activities"
         description="Discover the events, programmes, and co-curricular experiences that make student life energetic and inspiring."
         eyebrow="Campus Life"
+        backgroundImage="/images/music and arts.png"
       />
 
       <main className="flex-grow py-12 md:py-16">
@@ -34,21 +35,21 @@ const Activities = () => {
               Stay tuned! Upcoming activities will appear here.
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 md:gap-6">
               {activitiesQuery.data.map((activity) => (
                 <Card
                   key={activity.id}
-                  className="overflow-hidden border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  className="overflow-hidden border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-lg rounded-xl md:rounded-2xl"
                 >
                   {activity.image_url ? (
                     <img
                       src={activity.image_url}
                       alt={activity.title}
-                      className="h-40 w-full object-cover md:h-48"
+                      className="h-36 sm:h-40 md:h-48 w-full object-cover"
                     />
                   ) : null}
-                  <CardContent className="space-y-3 p-4 md:space-y-4 md:p-6">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground md:text-sm">
+                  <CardContent className="space-y-2.5 p-4 md:space-y-4 md:p-6">
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs text-muted-foreground md:text-sm">
                       <CalendarDays className="h-3.5 w-3.5 text-secondary md:h-4 md:w-4" />
                       <span>
                         {new Date(activity.activity_date).toLocaleDateString("en-IN", {
@@ -58,9 +59,9 @@ const Activities = () => {
                         })}
                       </span>
                     </div>
-                    <h3 className="text-base font-semibold text-primary md:text-lg">{activity.title}</h3>
+                    <h3 className="text-base font-semibold text-primary md:text-lg line-clamp-2">{activity.title}</h3>
                     {activity.description ? (
-                      <p className="text-xs text-muted-foreground leading-relaxed md:text-sm">
+                      <p className="text-xs text-muted-foreground leading-relaxed md:text-sm line-clamp-3">
                         {activity.description}
                       </p>
                     ) : null}

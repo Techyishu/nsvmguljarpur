@@ -26,28 +26,89 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
   const retryCountRef = useRef<number>(0);
   const retryTimeoutRef = useRef<number | null>(null);
 
-  const { data: musicSettings } = useQuery({
+  const { data: musicSettings, isLoading: isLoadingSettings, isError: isSettingsError } = useQuery({
     queryKey: ["backgroundMusicSettings"],
     queryFn: fetchBackgroundMusicSettings,
     refetchInterval: 30000, // Refetch every 30 seconds to check for updates
   });
 
-
-  // Effect to unmute audio when user enters via welcome screen
+  // Notify that audio is ready if music is disabled or not configured
+  // This allows the welcome screen to proceed even without background music
   useEffect(() => {
-    if (!userHasEntered || !audioRef.current) {
+    if (!isLoadingSettings && onAudioReady && !hasNotifiedReady.current) {
+      // If settings failed to load or are undefined, still allow entry
+      if (isSettingsError || !musicSettings) {
+        console.log('⚠️ Music settings failed to load or unavailable, allowing entry anyway');
+        hasNotifiedReady.current = true;
+        onAudioReady();
+        return;
+      }
+      
+      // If music is disabled or no URL, allow entry immediately
+      if (!musicSettings.enabled || !musicSettings.url) {
+        console.log('ℹ️ Music disabled or not configured, allowing entry');
+        hasNotifiedReady.current = true;
+        onAudioReady();
+        return;
+      }
+    }
+  }, [musicSettings, isLoadingSettings, isSettingsError, onAudioReady]);
+
+  // Fallback timeout: if settings take too long to load, allow entry anyway
+  // This prevents the welcome screen from being stuck forever
+  useEffect(() => {
+    if (!onAudioReady || hasNotifiedReady.current) return;
+    
+    const timeout = setTimeout(() => {
+      if (!hasNotifiedReady.current) {
+        console.log('⏰ Settings load timeout, allowing entry anyway');
+        hasNotifiedReady.current = true;
+        onAudioReady();
+      }
+    }, 5000); // Wait max 5 seconds for settings to load
+    
+    return () => clearTimeout(timeout);
+  }, [onAudioReady]);
+
+
+  // Effect to unmute and start audio when user enters via welcome screen
+  // This is triggered by user interaction, so browsers will allow audio playback
+  useEffect(() => {
+    if (!userHasEntered) {
       return;
     }
 
+    // If audio element doesn't exist yet, wait for it to be created
+    if (!audioRef.current) {
+      console.log('⏳ Waiting for audio element to be created...');
+      // Set up a check to retry when audio is ready
+      const checkInterval = setInterval(() => {
+        if (audioRef.current) {
+          clearInterval(checkInterval);
+          // Trigger the unmute logic
+          handleUserEnter();
+        }
+      }, 100);
+      
+      return () => clearInterval(checkInterval);
+    }
+
+    handleUserEnter();
+  }, [userHasEntered, musicSettings]);
+
+  const handleUserEnter = () => {
+    if (!audioRef.current) return;
+    
     const audio = audioRef.current;
     
-    console.log('🔓 User clicked Enter Campus');
-    console.log('📊 Before unmute:', {
+    console.log('🔓 User clicked Enter Campus - starting music playback');
+    console.log('📊 Audio state before:', {
       muted: audio.muted,
       paused: audio.paused,
       volume: audio.volume,
       currentTime: audio.currentTime,
-      readyState: audio.readyState
+      readyState: audio.readyState,
+      src: audio.src
     });
     
     // Set to start time if needed
@@ -55,43 +116,52 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
       audio.currentTime = startTimeRef.current;
     }
     
-    // UNMUTE the audio
+    // Set volume before playing
+    audio.volume = applyVolumeCurve(musicSettings?.volume || 0.5);
+    
+    // UNMUTE the audio first
     audio.muted = false;
     
-    console.log('🔊 AUDIO UNMUTED!');
-    console.log('📊 After unmute:', {
-      muted: audio.muted,
-      paused: audio.paused,
-      volume: audio.volume,
-      currentTime: audio.currentTime
-    });
+    // Always try to play - this is in response to user interaction so browsers will allow it
+    const playPromise = audio.play();
     
-    // If audio isn't playing, start it
-    if (audio.paused) {
-      console.log('⏯️ Audio was paused, starting playback...');
-      audio.play()
+    if (playPromise !== undefined) {
+      playPromise
         .then(() => {
           console.log('✅ Audio now playing UNMUTED at volume:', audio.volume);
+          hasAttemptedPlay.current = true;
+          
+          // Verify it stays unmuted and playing
+          setTimeout(() => {
+            if (audio.muted) {
+              console.warn('⚠️ Audio was re-muted! Unmuting again...');
+              audio.muted = false;
+            }
+            if (audio.paused) {
+              console.warn('⚠️ Audio was paused! Restarting...');
+              audio.play().catch(err => console.error('Failed to restart:', err));
+            }
+            console.log('🔍 Final check:', {
+              muted: audio.muted,
+              paused: audio.paused,
+              volume: audio.volume,
+              currentTime: audio.currentTime
+            });
+          }, 200);
         })
         .catch((error) => {
           console.error('❌ Failed to start audio:', error);
+          // Try loading the audio again
+          audio.load();
+          audio.play()
+            .then(() => {
+              console.log('✅ Audio started after reload');
+              hasAttemptedPlay.current = true;
+            })
+            .catch((err) => {
+              console.error('❌ Failed to start audio after reload:', err);
+            });
         });
-    } else {
-      console.log('✅ Audio is playing UNMUTED at volume:', audio.volume);
-      
-      // Verify it stays unmuted
-      setTimeout(() => {
-        if (audio.muted) {
-          console.warn('⚠️ Audio was re-muted! Unmuting again...');
-          audio.muted = false;
-        }
-        console.log('🔍 Final check:', {
-          muted: audio.muted,
-          paused: audio.paused,
-          volume: audio.volume,
-          currentTime: audio.currentTime
-        });
-      }, 200);
     }
     
     // Set up duration timer if specified
@@ -107,7 +177,7 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
         durationTimerRef.current = null;
       }, durationRef.current * 1000);
     }
-  }, [userHasEntered]);
+  };
 
   // Update timing refs when settings change
   useEffect(() => {
@@ -119,8 +189,9 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
   }, [musicSettings?.startTime, musicSettings?.endTime, musicSettings?.duration]);
 
   useEffect(() => {
-    if (!musicSettings || !musicSettings.url || !musicSettings.enabled) {
-      // Clean up if music is disabled or URL is empty
+    // If no URL is configured, clean up and allow entry
+    if (!musicSettings || !musicSettings.url) {
+      // Clean up if URL is empty
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -135,8 +206,18 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
         retryTimeoutRef.current = null;
       }
       retryCountRef.current = 0;
+      
+      // If music URL is not configured, notify ready immediately
+      if (onAudioReady && !hasNotifiedReady.current && !isLoadingSettings) {
+        hasNotifiedReady.current = true;
+        onAudioReady();
+      }
       return;
     }
+
+    // If URL exists but music is disabled, we still create the audio element
+    // It will be enabled when user clicks enter (user interaction)
+    // This allows music to start playing even if it was initially disabled
 
     // Create or update audio element
     if (!audioRef.current) {
@@ -144,7 +225,9 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
       const audio = new Audio(musicSettings.url);
       
       // Start muted FIRST for autoplay to work (browsers allow muted autoplay)
-      audio.muted = true;
+      // If music is disabled, keep it muted until user clicks enter
+      // If music is enabled, it will be unmuted when user enters
+      audio.muted = !musicSettings.enabled || !userHasEntered;
       
       // Configure audio properties
       audio.volume = applyVolumeCurve(musicSettings.volume);
@@ -209,14 +292,41 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
             audio.currentTime = startTimeRef.current;
           }
           
-          audio.play()
-            .then(() => {
-              hasAttemptedPlay.current = true;
-              console.log('✅ Audio started muted at time:', audio.currentTime);
-            })
-            .catch(() => {
-              hasAttemptedPlay.current = false;
-            });
+          // If user has entered, play unmuted (user interaction context)
+          // Otherwise, try muted autoplay (browsers allow this)
+          if (userHasEntered) {
+            audio.muted = false;
+            audio.volume = applyVolumeCurve(musicSettings?.volume || 0.5);
+            audio.play()
+              .then(() => {
+                hasAttemptedPlay.current = true;
+                console.log('✅ Audio started UNMUTED after user entered at time:', audio.currentTime);
+              })
+              .catch((err) => {
+                hasAttemptedPlay.current = false;
+                console.error('❌ Failed to start audio after user entered:', err);
+                // Retry once more
+                setTimeout(() => {
+                  audio.play()
+                    .then(() => {
+                      hasAttemptedPlay.current = true;
+                      console.log('✅ Audio started after retry');
+                    })
+                    .catch(e => console.error('Retry failed:', e));
+                }, 100);
+              });
+          } else {
+            // Try muted autoplay (browsers allow this)
+            audio.play()
+              .then(() => {
+                hasAttemptedPlay.current = true;
+                console.log('✅ Audio started muted (autoplay) at time:', audio.currentTime);
+              })
+              .catch((err) => {
+                hasAttemptedPlay.current = false;
+                console.log('⚠️ Muted autoplay failed (will wait for user interaction):', err.message);
+              });
+          }
         }
       });
       
@@ -238,18 +348,25 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
           audio.currentTime = startTimeRef.current;
         }
         
+      // If user has already entered or music is enabled, start unmuted
+      // Otherwise, start muted for autoplay
+      if (userHasEntered || musicSettings.enabled) {
+        audio.muted = false;
+      }
+        
         audio.play()
           .then(() => {
             hasAttemptedPlay.current = true;
-            console.log('✅ Immediate autoplay started muted at time:', audio.currentTime);
+            console.log(`✅ Immediate autoplay started ${userHasEntered ? 'UNMUTED' : 'muted'} at time:`, audio.currentTime);
             // If audio is already loaded enough, notify parent (only once)
             if (onAudioReady && !hasNotifiedReady.current) {
               hasNotifiedReady.current = true;
               onAudioReady();
             }
           })
-          .catch(() => {
-            // Will try again in canplay event
+          .catch((err) => {
+            console.log('⚠️ Immediate play failed:', err.message);
+            // Will try again in canplay event or when user enters
           });
       }
       
@@ -299,6 +416,11 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
         audioRef.current.src = newUrl;
         audioRef.current.muted = !userHasEntered; // Keep unmuted if user already entered
         
+        // If user has already entered, ensure volume is set
+        if (userHasEntered) {
+          audioRef.current.volume = applyVolumeCurve(musicSettings.volume);
+        }
+        
         // Reset flags and counters
         hasAttemptedPlay.current = false;
         retryCountRef.current = 0;
@@ -318,9 +440,23 @@ export const BackgroundMusic = ({ userHasEntered, onAudioReady }: BackgroundMusi
         
         // Load and play new audio
         audioRef.current.load();
-        audioRef.current.play().catch(() => {
-          hasAttemptedPlay.current = false;
-        });
+        audioRef.current.play()
+          .then(() => {
+            hasAttemptedPlay.current = true;
+            if (userHasEntered) {
+              console.log('✅ Music started playing after URL change (user already entered)');
+            }
+          })
+          .catch((err) => {
+            hasAttemptedPlay.current = false;
+            console.log('⚠️ Failed to play after URL change:', err.message);
+            // If user has entered, try again (user interaction context)
+            if (userHasEntered) {
+              setTimeout(() => {
+                audioRef.current?.play().catch(e => console.error('Retry failed:', e));
+              }, 100);
+            }
+          });
       }
       
       // Update volume with curve applied

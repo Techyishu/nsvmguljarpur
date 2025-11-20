@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
+  // No persistence - welcome screen shows on every page refresh
+  // State resets on each page load
   const [hasEntered, setHasEntered] = useState(false);
   const [isAudioReady, setIsAudioReady] = useState(false);
 

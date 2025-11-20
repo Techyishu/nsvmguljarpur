@@ -1,162 +1,97 @@
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-interface Slide {
-  image: string;
-  eyebrow: string;
-  title: string;
-  description: string;
-}
-
-const slides: Slide[] = [
-  {
-    image: "/images/today-1.jpg",
-    eyebrow: "Inspiring Excellence",
-    title: "Nurturing Confident, Compassionate Learners",
-    description:
-      "From Nursery to Class XII, we deliver a balanced education that blends values, academics, and enrichment programmes.",
-  },
-  {
-    image: "/images/s7.jpg",
-    eyebrow: "Annual Day Celebration",
-    title: "Where Talents Shine & Dreams Take Flight",
-    description:
-      "Our students showcase their creativity and skills through vibrant performances and cultural celebrations.",
-  },
-  {
-    image: "/images/s6.jpg",
-    eyebrow: "Leadership for Tomorrow",
-    title: "Building Tomorrow's Leaders Today",
-    description:
-      "Our mentors shape students into compassionate leaders ready to make a difference in the global society.",
-  },
-  {
-    image: "/images/s4.jpg",
-    eyebrow: "Annual Celebrations",
-    title: "Celebrating Unity, Diversity & Patriotism",
-    description:
-      "We foster values of citizenship and national pride through meaningful cultural programmes and celebrations.",
-  },
-  {
-    image: "/images/s3.jpg",
-    eyebrow: "Innovation & Learning",
-    title: "Encouraging Creativity & Scientific Thinking",
-    description:
-      "Our students engage in hands-on learning and innovative projects that spark curiosity and problem-solving skills.",
-  },
-  {
-    image: "/images/s2.jpg",
-    eyebrow: "Academic Excellence",
-    title: "State-of-the-Art Learning Facilities",
-    description:
-      "Modern laboratories and learning spaces equipped to provide the best educational experience for our students.",
-  },
-];
+import { ArrowRight, Sparkles, BookOpen, Users } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const HeroSlider = () => {
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 6000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const nextSlide = () => setCurrent((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
-
   return (
-    <section className="relative bg-gradient-to-br from-primary/5 via-white to-primary/10 overflow-hidden">
-      <div className="container mx-auto px-4 py-12 md:py-16 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Side - Text Content */}
-          <div className="max-w-xl lg:max-w-none">
-            <span className="text-[0.65rem] md:text-xs uppercase tracking-[0.25em] text-primary md:tracking-[0.35em]">
-              {slides[current].eyebrow}
-            </span>
-            <h1 className="mt-4 text-2xl md:text-4xl lg:text-5xl font-semibold leading-tight text-primary">
-              {slides[current].title}
-            </h1>
-            <p className="mt-4 text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed">
-              {slides[current].description}
-            </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-2 md:mt-8 md:gap-3">
-              <Button
-                asChild
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-4 text-xs font-semibold uppercase tracking-wide md:px-6 md:py-5 md:text-sm"
-              >
-                <Link to="/about">Discover Our School</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary/40 text-primary hover:bg-primary/10 px-5 py-4 text-xs font-semibold uppercase tracking-wide md:px-6 md:py-5 md:text-sm"
-              >
-                <Link to="/contact">Plan a Visit</Link>
-              </Button>
-            </div>
-
-            {/* Dot Indicators */}
-            <div className="mt-8 flex gap-2">
-              {slides.map((slide, index) => (
-                <button
-                  key={slide.title}
-                  className={`h-2 w-8 rounded-full transition-all ${
-                    index === current ? "bg-primary" : "bg-primary/20 hover:bg-primary/40"
-                  }`}
-                  onClick={() => setCurrent(index)}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Right Side - Image Slider */}
-          <div className="relative h-[300px] md:h-[400px] lg:h-[500px]">
-            {slides.map((slide, index) => (
-              <div
-                key={slide.title}
-                className={`absolute inset-0 transition-opacity duration-700 ${
-                  index === current ? "opacity-100 z-20" : "opacity-0 z-10"
-                }`}
-                aria-hidden={index !== current}
-              >
-                <div className="relative h-full w-full rounded-3xl overflow-hidden border border-border shadow-2xl">
-                  <img
-                    src={slide.image}
-                    alt={slide.title}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
-            ))}
-
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-white/90 text-primary hover:bg-white h-9 w-9 rounded-full shadow-lg md:h-11 md:w-11"
-              onClick={prevSlide}
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-white/90 text-primary hover:bg-white h-9 w-9 rounded-full shadow-lg md:h-11 md:w-11"
-              onClick={nextSlide}
-              aria-label="Next slide"
-            >
-              <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
-            </Button>
-          </div>
-        </div>
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-slate-900 text-white">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/images/Gemini_Generated_Image_c17bkmc17bkmc17b.png"
+          alt="School Campus"
+          className="w-full h-full object-cover opacity-40 scale-105 animate-pulse-slow"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
       </div>
+
+      {/* Animated Shapes */}
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/30 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+
+      <div className="container relative z-10 px-4 py-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-4xl mx-auto space-y-8"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium text-secondary animate-fade-in">
+            <Sparkles className="w-4 h-4" />
+            <span>Admissions Open for 2025-26</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-tight">
+            <span className="block text-white mb-2">Nurturing Minds,</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-white to-secondary animate-gradient bg-300%">
+              Building Futures
+            </span>
+          </h1>
+
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed font-light">
+            Experience education that goes beyond textbooks. We foster creativity, confidence, and character in every student.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Button
+              asChild
+              size="lg"
+              className="h-14 px-8 text-lg rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-lg shadow-secondary/25 transition-all duration-300 hover:-translate-y-1"
+            >
+              <Link to="/contact">
+                Apply Now <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="h-14 px-8 text-lg rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/40 backdrop-blur-sm transition-all duration-300"
+            >
+              <Link to="/about">Discover More</Link>
+            </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 md:pt-20 border-t border-white/10 mt-12">
+            <div className="space-y-1">
+              <div className="text-3xl md:text-4xl font-bold text-white">1000+</div>
+              <div className="text-sm text-white/60 font-medium uppercase tracking-wider">Happy Students</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-3xl md:text-4xl font-bold text-white">50+</div>
+              <div className="text-sm text-white/60 font-medium uppercase tracking-wider">Expert Faculty</div>
+            </div>
+            <div className="space-y-1 col-span-2 md:col-span-1">
+              <div className="text-3xl md:text-4xl font-bold text-white">100%</div>
+              <div className="text-sm text-white/60 font-medium uppercase tracking-wider">Success Rate</div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50"
+      >
+        <span className="text-xs uppercase tracking-widest">Scroll</span>
+        <div className="w-0.5 h-12 bg-gradient-to-b from-white/50 to-transparent" />
+      </motion.div>
     </section>
   );
 };

@@ -82,18 +82,18 @@ export const ReviewSubmissionForm = () => {
   if (submitSuccess) {
     return (
       <Card className="border-secondary/40 bg-secondary/5">
-        <CardContent className="pt-6 text-center space-y-3">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-secondary/10 text-secondary mb-2">
-            <MessageSquare className="h-6 w-6" />
+        <CardContent className="pt-5 md:pt-6 text-center space-y-2.5 md:space-y-3">
+          <div className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-secondary/10 text-secondary mb-1 md:mb-2">
+            <MessageSquare className="h-5 w-5 md:h-6 md:w-6" />
           </div>
-          <h3 className="text-lg font-semibold text-primary">Thank You!</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-base md:text-lg font-semibold text-primary">Thank You!</h3>
+          <p className="text-xs md:text-sm text-muted-foreground px-2">
             Your review has been submitted successfully. It will be published after admin approval.
           </p>
           <Button
             variant="outline"
             onClick={() => setSubmitSuccess(false)}
-            className="mt-4"
+            className="mt-3 md:mt-4 text-xs md:text-sm"
           >
             Submit Another Review
           </Button>
@@ -104,33 +104,33 @@ export const ReviewSubmissionForm = () => {
 
   return (
     <Card className="border-border bg-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
-          <MessageSquare className="h-5 w-5 text-secondary" />
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm md:text-base">
+          <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-secondary" />
           Share Your Experience
         </CardTitle>
-        <CardDescription>
-          Tell us about your experience with Anupam Senior Secondary School
+        <CardDescription className="text-xs md:text-sm">
+          Tell us about your experience with Nirakar Jyoti Vidya Mandir
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
-            className="space-y-4"
+            className="space-y-3 md:space-y-4"
             noValidate
           >
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="author_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Name *</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">Your Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} disabled={isSubmitting} />
+                      <Input placeholder="John Doe" className="text-sm md:text-base" {...field} disabled={isSubmitting} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -139,15 +139,16 @@ export const ReviewSubmissionForm = () => {
                 name="author_role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role (optional)</FormLabel>
+                    <FormLabel className="text-xs md:text-sm">Role (optional)</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. Parent, Alumni, Student"
+                        placeholder="e.g. Parent, Alumni"
+                        className="text-sm md:text-base"
                         {...field}
                         disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -158,9 +159,9 @@ export const ReviewSubmissionForm = () => {
               name="rating"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rating *</FormLabel>
+                  <FormLabel className="text-xs md:text-sm">Rating *</FormLabel>
                   <FormControl>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 md:gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
@@ -174,7 +175,7 @@ export const ReviewSubmissionForm = () => {
                           className="transition-transform hover:scale-110 disabled:opacity-50"
                         >
                           <Star
-                            className={`h-8 w-8 ${
+                            className={`h-6 w-6 md:h-8 md:w-8 ${
                               star <= field.value
                                 ? "fill-secondary text-secondary"
                                 : "text-muted-foreground"
@@ -182,12 +183,12 @@ export const ReviewSubmissionForm = () => {
                           />
                         </button>
                       ))}
-                      <span className="ml-2 text-sm font-semibold text-secondary">
+                      <span className="ml-1 md:ml-2 text-xs md:text-sm font-semibold text-secondary">
                         {field.value} / 5
                       </span>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -197,22 +198,23 @@ export const ReviewSubmissionForm = () => {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Review *</FormLabel>
+                  <FormLabel className="text-xs md:text-sm">Your Review *</FormLabel>
                   <FormControl>
                     <Textarea
-                      rows={5}
-                      placeholder="Share your thoughts about the school, teachers, facilities, or overall experience..."
+                      rows={4}
+                      placeholder="Share your thoughts about the school..."
+                      className="text-sm md:text-base"
                       {...field}
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
             {submitError && (
-              <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-2.5 md:p-3 text-xs md:text-sm text-destructive">
                 {submitError}
               </div>
             )}
@@ -220,11 +222,11 @@ export const ReviewSubmissionForm = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold uppercase tracking-wider"
+              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-semibold uppercase tracking-wider text-xs md:text-sm py-5 md:py-6"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4 animate-spin" />
                   Submitting...
                 </>
               ) : (
@@ -232,7 +234,7 @@ export const ReviewSubmissionForm = () => {
               )}
             </Button>
 
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-[10px] md:text-xs text-muted-foreground text-center">
               Your review will be reviewed by our team before being published.
             </p>
           </form>

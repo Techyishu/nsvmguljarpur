@@ -71,6 +71,8 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     storageKey: "shikhsha-web-builder-auth",
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    // Handle token refresh errors gracefully
+    flowType: "pkce",
   },
   db: {
     schema: "public",
@@ -88,5 +90,78 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     },
   },
 });
+
+// Handle auth errors, especially invalid refresh tokens
+// This clears invalid tokens from the previous project
+if (typeof window !== "undefined") {
+  // One-time cleanup: Check if stored tokens belong to the current project
+  const storageKey = "shikhsha-web-builder-auth";
+  const projectUrlKey = `${storageKey}-project-url`;
+  
+  try {
+    const storedProjectUrl = localStorage.getItem(projectUrlKey);
+    if (storedProjectUrl && storedProjectUrl !== supabaseUrl) {
+      // Project URL changed, clear old tokens
+      console.log("🔄 Project URL changed, clearing old auth tokens...");
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(`${storageKey}-refresh-token`);
+      // Clear all Supabase-related keys
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("sb-") || key.includes("supabase")) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+    // Store current project URL for future checks
+    localStorage.setItem(projectUrlKey, supabaseUrl);
+  } catch (e) {
+    // Ignore localStorage errors
+    console.warn("Could not check project URL:", e);
+  }
+
+  // Listen for auth state changes and handle errors
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === "TOKEN_REFRESHED") {
+      // Token refresh succeeded
+      console.log("✅ Token refreshed successfully");
+    } else if (event === "SIGNED_OUT") {
+      // User signed out, clear any stale data
+      console.log("👋 User signed out");
+    }
+  });
+
+  // Check for invalid tokens on initialization and clear them
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      // If there's an error getting the session, it might be an invalid token
+      // Clear the session to prevent refresh token errors
+      if (
+        error.message?.includes("Refresh Token") ||
+        error.message?.includes("Invalid Refresh Token") ||
+        error.message?.includes("JWT") ||
+        error.message?.includes("token")
+      ) {
+        console.warn("⚠️ Invalid token detected, clearing session...");
+        supabase.auth.signOut({ scope: "local" }).catch(() => {
+          // Ignore errors during cleanup - try manual cleanup
+          try {
+            localStorage.removeItem(storageKey);
+            localStorage.removeItem(`${storageKey}-refresh-token`);
+          } catch (e) {
+            // Ignore
+          }
+        });
+      }
+    }
+  }).catch(() => {
+    // If getSession fails completely, clear storage
+    try {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(`${storageKey}-refresh-token`);
+    } catch (e) {
+      // Ignore
+    }
+  });
+}
 
 

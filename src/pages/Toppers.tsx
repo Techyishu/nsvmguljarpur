@@ -9,13 +9,14 @@ const Toppers = () => {
   const toppersQuery = useActiveToppers();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-secondary/30">
       <Navbar />
 
       <PageHero
         title="Academic Toppers"
         description="Celebrating the hard work, discipline, and outstanding board results of our meritorious students."
         eyebrow="Hall of Fame"
+        backgroundImage="/images/lab.png"
       />
 
       <main className="flex-grow py-12 md:py-16">
@@ -34,31 +35,31 @@ const Toppers = () => {
               Academic excellence stories will appear here soon.
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {toppersQuery.data.map((topper) => (
                 <Card
                   key={topper.id}
-                  className="border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  className="border border-border/60 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-lg rounded-xl md:rounded-2xl"
                 >
-                  <CardContent className="p-5 text-center space-y-3 md:p-6 md:space-y-4">
+                  <CardContent className="p-4 text-center space-y-3 md:p-6 md:space-y-4">
                     {topper.photo_url ? (
                       <img
                         src={topper.photo_url}
                         alt={topper.student_name}
-                        className="mx-auto h-24 w-24 rounded-full object-cover md:h-28 md:w-28"
+                        className="mx-auto h-20 w-20 rounded-full object-cover md:h-24 md:w-24 border-2 border-secondary/20"
                       />
                     ) : (
-                      <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-muted text-xs uppercase tracking-wider text-muted-foreground md:h-28 md:w-28">
+                      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-muted text-[10px] uppercase tracking-wider text-muted-foreground md:h-24 md:w-24">
                         No Photo
                       </div>
                     )}
                     <div className="space-y-1">
-                      <p className="text-base font-semibold text-primary uppercase tracking-wide md:text-lg">
+                      <p className="text-sm font-semibold text-primary uppercase tracking-wide md:text-base">
                         {topper.student_name}
                       </p>
                       <p className="text-xs text-secondary font-semibold md:text-sm">{topper.class_name}</p>
                       {topper.exam_year ? (
-                        <p className="text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">
+                        <p className="text-[0.6rem] md:text-[0.65rem] uppercase tracking-[0.25em] md:tracking-[0.3em] text-muted-foreground">
                           Batch {topper.exam_year}
                         </p>
                       ) : null}

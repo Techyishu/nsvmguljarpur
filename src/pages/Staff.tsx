@@ -9,13 +9,14 @@ const Staff = () => {
   const staffQuery = useActiveStaff();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-secondary/30">
       <Navbar />
 
       <PageHero
         title="Our Faculty"
         description="Meet the dedicated educators and mentors who guide our students with expertise, empathy, and passion."
-        eyebrow="Team Anupam"
+        eyebrow="Team Nirakar"
+        backgroundImage="/images/library.png"
       />
 
       <main className="flex-grow py-12 md:py-16">
@@ -34,31 +35,31 @@ const Staff = () => {
               Our faculty profiles are being updated. Visit again soon!
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {staffQuery.data.map((staff) => (
                 <Card
                   key={staff.id}
-                  className="border border-border/60 bg-card/90 backdrop-blur shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  className="border border-border/60 bg-card/90 backdrop-blur shadow-sm transition hover:-translate-y-1 hover:shadow-lg rounded-xl md:rounded-2xl"
                 >
-                  <CardContent className="p-5 text-center space-y-3 md:p-6 md:space-y-4">
+                  <CardContent className="p-4 text-center space-y-3 md:p-6 md:space-y-4">
                     {staff.photo_url ? (
                       <img
                         src={staff.photo_url}
                         alt={staff.full_name}
-                        className="mx-auto h-24 w-24 rounded-full object-cover md:h-28 md:w-28"
+                        className="mx-auto h-20 w-20 rounded-full object-cover md:h-24 md:w-24 border-2 border-primary/10"
                       />
                     ) : (
-                      <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-muted text-xs uppercase tracking-wider text-muted-foreground md:h-28 md:w-28">
+                      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-muted text-[10px] uppercase tracking-wider text-muted-foreground md:h-24 md:w-24">
                         No Photo
                       </div>
                     )}
                     <div>
-                      <p className="text-base font-semibold text-primary uppercase tracking-wide md:text-lg">
+                      <p className="text-sm font-semibold text-primary uppercase tracking-wide md:text-base">
                         {staff.full_name}
                       </p>
-                      <p className="text-xs text-secondary font-semibold md:text-sm">{staff.designation}</p>
+                      <p className="text-xs text-secondary font-semibold md:text-sm mt-1">{staff.designation}</p>
                       {staff.qualification ? (
-                        <p className="mt-1.5 text-xs text-muted-foreground md:mt-2 md:text-sm">
+                        <p className="mt-1.5 text-[11px] text-muted-foreground md:mt-2 md:text-xs">
                           {staff.qualification}
                         </p>
                       ) : null}

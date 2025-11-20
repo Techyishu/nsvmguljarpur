@@ -1,56 +1,60 @@
+import { motion } from "framer-motion";
 import clsx from "clsx";
-
-type Alignment = "center" | "left";
 
 interface PageHeroProps {
   title: string;
-  description: string;
+  description?: string;
   eyebrow?: string;
   backgroundImage?: string;
-  align?: Alignment;
+  className?: string;
 }
 
 export const PageHero = ({
   title,
   description,
   eyebrow,
-  backgroundImage,
-  align = "center",
+  backgroundImage = "/images/school-building.jpg", // Default fallback
+  className
 }: PageHeroProps) => {
-  const alignmentClasses =
-    align === "center"
-      ? "text-center mx-auto items-center"
-      : "text-left ml-0 items-start";
-
   return (
-    <section className="relative overflow-hidden">
-      {backgroundImage ? (
-        <div className="absolute inset-0">
-          <img
-            src={backgroundImage}
-            alt={title}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-white/85 backdrop-blur-sm" />
-        </div>
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-white to-primary/10" />
-      )}
+    <section className={clsx("relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden", className)}>
+      {/* Background Image with Parallax-like effect */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={backgroundImage}
+          alt={title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50" />
+      </div>
 
-      <div className="relative container mx-auto px-4 py-12 md:py-24">
-        <div className={clsx("flex flex-col gap-3 max-w-3xl md:gap-4", alignmentClasses)}>
+      {/* Content */}
+      <div className="container relative z-10 px-4 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl mx-auto"
+        >
           {eyebrow && (
-            <span className="text-[0.65rem] uppercase tracking-[0.25em] text-primary md:text-xs md:tracking-[0.35em]">
+            <span className="inline-block px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-secondary text-xs font-bold uppercase tracking-widest mb-4">
               {eyebrow}
             </span>
           )}
-          <h1 className="text-2xl md:text-5xl font-semibold text-primary">{title}</h1>
-          <p className="text-sm md:text-lg text-muted-foreground leading-relaxed">
-            {description}
-          </p>
-        </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-4 tracking-tight">
+            {title}
+          </h1>
+          {description && (
+            <p className="text-lg md:text-xl text-white/80 font-light max-w-2xl mx-auto leading-relaxed">
+              {description}
+            </p>
+          )}
+        </motion.div>
       </div>
+
+      {/* Decorative Bottom Curve */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-background rounded-t-[50%] scale-x-150 translate-y-1/2 z-20" />
     </section>
   );
 };
-

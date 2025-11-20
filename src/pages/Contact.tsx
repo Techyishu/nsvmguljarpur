@@ -1,13 +1,13 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
 import { PageHero } from "@/components/PageHero";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -20,125 +20,181 @@ const Contact = () => {
     });
   };
 
+  const contactInfo = [
+    {
+      icon: MapPin,
+      title: "Visit Us",
+      content: "Nirakar Jyoti Vidya Mandir Gullarpur, Karnal, Haryana 132037",
+      color: "text-red-500",
+      bg: "bg-red-50"
+    },
+    {
+      icon: Phone,
+      title: "Call Us",
+      content: "+91-90502 93002",
+      color: "text-blue-500",
+      bg: "bg-blue-50"
+    },
+    {
+      icon: Mail,
+      title: "Email Us",
+      content: "nirakarjyotividyamandir@gmail.com",
+      color: "text-orange-500",
+      bg: "bg-orange-50"
+    },
+    {
+      icon: Clock,
+      title: "Office Hours",
+      content: "Mon - Sat: 8:00 AM - 2:00 PM",
+      color: "text-green-500",
+      bg: "bg-green-50"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-secondary/30">
       <Navbar />
 
-      <PageHero
-        title="Contact Us"
-        description="Reach out to our team for admissions queries, campus visits, or general assistance — we’re happy to help."
-        eyebrow="Get In Touch"
-      />
+      <main className="flex-grow">
+        <PageHero
+          title="Contact Us"
+          description="Reach out to our team for admissions queries, campus visits, or general assistance — we're happy to help."
+          eyebrow="Get In Touch"
+          backgroundImage="/images/Gemini_Generated_Image_d2ubl3d2ubl3d2ub.png"
+        />
 
-      <main className="flex-grow py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto md:gap-12">
-            <div className="space-y-6 md:space-y-8">
-              <Card className="bg-card border-border">
-                <CardContent className="pt-5 md:pt-6">
-                  <div className="space-y-5 md:space-y-6">
-                    <div className="flex items-start space-x-3 md:space-x-4">
-                      <div className="bg-secondary/10 p-3 rounded md:p-4">
-                        <MapPin className="h-5 w-5 text-secondary md:h-6 md:w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base mb-1 uppercase tracking-wide md:text-lg">Address</h3>
-                        <p className="text-muted-foreground text-sm md:text-base">Anupam Shiksha Niketan School Kutail, Haryana 132037</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3 md:space-x-4">
-                      <div className="bg-secondary/10 p-3 rounded md:p-4">
-                        <Phone className="h-5 w-5 text-secondary md:h-6 md:w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base mb-1 uppercase tracking-wide md:text-lg">Phone</h3>
-                        <p className="text-muted-foreground text-sm md:text-base">+91-85700 54094</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3 md:space-x-4">
-                      <div className="bg-secondary/10 p-3 rounded md:p-4">
-                        <Mail className="h-5 w-5 text-secondary md:h-6 md:w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base mb-1 uppercase tracking-wide md:text-lg">Email</h3>
-                        <p className="text-muted-foreground text-sm break-all md:text-base">anupamshikshaniketan@gmail.com</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3 md:space-x-4">
-                      <div className="bg-secondary/10 p-3 rounded md:p-4">
-                        <Clock className="h-5 w-5 text-secondary md:h-6 md:w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base mb-1 uppercase tracking-wide md:text-lg">Office Hours</h3>
-                        <p className="text-muted-foreground text-sm md:text-base">Monday - Friday: 8:00 AM - 4:00 PM</p>
-                        <p className="text-muted-foreground text-sm md:text-base">Saturday: 8:00 AM - 12:00 PM</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="bg-card border-border">
-              <CardContent className="pt-5 md:pt-6">
-                <h2 className="text-xl font-black mb-5 uppercase tracking-wide md:text-3xl md:mb-6 md:tracking-wider">Send Message</h2>
-                <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                  <div>
-                    <Label htmlFor="name" className="uppercase tracking-wide font-bold text-xs md:text-sm">Name</Label>
-                    <Input 
-                      id="name" 
-                      placeholder="Your name" 
-                      required 
-                      className="bg-background border-border mt-1.5 text-sm md:mt-2 md:text-base"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="email" className="uppercase tracking-wide font-bold text-xs md:text-sm">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="your@email.com" 
-                      required 
-                      className="bg-background border-border mt-1.5 text-sm md:mt-2 md:text-base"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="phone" className="uppercase tracking-wide font-bold text-xs md:text-sm">Phone</Label>
-                    <Input 
-                      id="phone" 
-                      type="tel" 
-                      placeholder="Your phone number" 
-                      className="bg-background border-border mt-1.5 text-sm md:mt-2 md:text-base"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="message" className="uppercase tracking-wide font-bold text-xs md:text-sm">Message</Label>
-                    <Textarea
-                      id="message"
-                      placeholder="Your message..."
-                      rows={5}
-                      required
-                      className="bg-background border-border mt-1.5 text-sm md:mt-2 md:text-base"
-                    />
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 font-bold uppercase tracking-wide py-5 text-xs md:py-6 md:text-sm md:tracking-wider"
-                  >
-                    Send Message
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+        <section className="py-12 md:py-24 relative overflow-hidden">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+            <div className="absolute top-1/4 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
           </div>
-        </div>
+
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
+
+              {/* Contact Information */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="mb-10">
+                  <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">Let's Start a Conversation</h2>
+                  <p className="text-muted-foreground text-lg">
+                    Have questions about admissions, academics, or campus life? We're here to help you every step of the way.
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {contactInfo.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="bg-card p-6 rounded-2xl border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
+                      >
+                        <div className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                          <Icon className={`h-6 w-6 ${item.color}`} />
+                        </div>
+                        <h3 className="font-heading font-bold text-lg text-primary mb-2">{item.title}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">{item.content}</p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+
+              {/* Contact Form */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-card rounded-3xl shadow-xl border border-border/50 p-8 md:p-10 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-full -mr-10 -mt-10"></div>
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-8">
+                    <div className="p-3 bg-primary/10 rounded-full text-primary">
+                      <MessageSquare className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-2xl font-heading font-bold">Send a Message</h3>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input id="name" placeholder="John Doe" required className="bg-background/50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input id="phone" placeholder="+91 98765 43210" type="tel" className="bg-background/50" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input id="email" placeholder="john@example.com" type="email" required className="bg-background/50" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject</Label>
+                      <Input id="subject" placeholder="Admission Inquiry" required className="bg-background/50" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Message</Label>
+                      <Textarea
+                        id="message"
+                        placeholder="How can we help you?"
+                        className="min-h-[120px] bg-background/50 resize-none"
+                        required
+                      />
+                    </div>
+
+                    <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+                      <Send className="w-4 h-4 mr-2" /> Send Message
+                    </Button>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Map Section */}
+        <section className="h-[400px] md:h-[500px] w-full bg-muted relative grayscale hover:grayscale-0 transition-all duration-700">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3460.667287803323!2d77.0568763150983!3d29.84499998195547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390e67f9a5a5a5a5%3A0x5a5a5a5a5a5a5a5a!2sNirakar%20Jyoti%20Vidya%20Mandir!5e0!3m2!1sen!2sin!4v1625641234567!5m2!1sen!2sin"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            title="School Location"
+          ></iframe>
+
+          {/* Map Overlay Card */}
+          <div className="absolute bottom-6 left-4 right-4 md:left-10 md:right-auto md:w-80 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-white/20">
+            <h4 className="font-bold text-primary text-lg mb-2">Locate Us</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Easily accessible from Karnal city center via the main highway.
+            </p>
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <a href="https://goo.gl/maps/example" target="_blank" rel="noopener noreferrer">
+                Get Directions
+              </a>
+            </Button>
+          </div>
+        </section>
       </main>
 
       <Footer />

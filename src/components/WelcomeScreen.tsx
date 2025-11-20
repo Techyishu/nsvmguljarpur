@@ -54,7 +54,7 @@ export const WelcomeScreen = ({ onEnter, isAudioReady }: WelcomeScreenProps) => 
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl md:rounded-3xl shadow-2xl border border-white/20 p-6 md:p-10 text-center mt-12 md:mt-20">
           {/* School Name */}
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4 drop-shadow-lg leading-tight">
-            Anupam Shiksha Niketan
+            Nirakar Jyoti Vidya Mandir Gullarpur
           </h1>
 
           {/* Welcome Message */}
@@ -107,7 +107,7 @@ export const WelcomeScreen = ({ onEnter, isAudioReady }: WelcomeScreenProps) => 
 
           {/* Tagline */}
           <p className="mt-4 md:mt-6 text-white/60 text-xs sm:text-sm italic">
-            Building Futures, Shaping Dreams
+            Illuminating Minds, Shaping Futures
           </p>
         </div>
       </div>

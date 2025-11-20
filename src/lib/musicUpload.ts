@@ -28,21 +28,35 @@ export async function uploadMusic(file: File): Promise<MusicUploadResult> {
   const filePath = fileName;
 
   // Determine content type more accurately
-  let contentType = file.type;
-  if (!contentType || contentType === 'application/octet-stream') {
-    // Fallback to extension-based MIME type
-    const mimeTypes: Record<string, string> = {
-      'mp3': 'audio/mpeg',
-      'wav': 'audio/wav',
-      'ogg': 'audio/ogg',
-      'webm': 'audio/webm',
-      'aac': 'audio/aac',
-      'm4a': 'audio/mp4',
-    };
-    contentType = mimeTypes[fileExt] || `audio/${fileExt}`;
+  // Always use extension-based MIME type to ensure consistency
+  const mimeTypes: Record<string, string> = {
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'ogg': 'audio/ogg',
+    'webm': 'audio/webm',
+    'aac': 'audio/aac',
+    'm4a': 'audio/mp4',
+    'flac': 'audio/flac',
+    'opus': 'audio/opus',
+  };
+  
+  // Use extension-based MIME type first, fallback to file.type if not found
+  let contentType = mimeTypes[fileExt] || file.type;
+  
+  // If still no valid content type, use audio/mpeg as default for MP3
+  if (!contentType || contentType === 'application/octet-stream' || contentType === 'application/json') {
+    contentType = mimeTypes[fileExt] || 'audio/mpeg';
   }
 
-  const { data, error } = await supabase.storage.from("music").upload(filePath, file, {
+  // Ensure we're uploading a proper File/Blob object
+  // Create a new File object with explicit content type if needed
+  let fileToUpload: File | Blob = file;
+  if (file.type !== contentType) {
+    // If the file's type doesn't match, create a new File with correct type
+    fileToUpload = new File([file], file.name, { type: contentType });
+  }
+
+  const { data, error } = await supabase.storage.from("music").upload(filePath, fileToUpload, {
     cacheControl: "3600",
     upsert: false,
     contentType: contentType,

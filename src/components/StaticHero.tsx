@@ -8,7 +8,7 @@ export const StaticHero = () => {
         <div className="grid items-center gap-8 lg:gap-12 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="max-w-xl">
             <span className="text-[0.65rem] uppercase tracking-[0.25em] text-primary md:text-xs md:tracking-[0.35em]">
-              Anupam Shiksha Niketan Sr. Sec. School
+              Nirakar Jyoti Vidya Mandir Gullarpur
             </span>
             <h1 className="mt-4 text-2xl font-semibold text-primary md:mt-6 md:text-5xl">
               Nurturing confident, compassionate learners since 2001.
@@ -38,7 +38,7 @@ export const StaticHero = () => {
           <div className="relative mt-6 aspect-[4/3] overflow-hidden rounded-3xl border border-border shadow-xl lg:mt-0">
             <img
               src="/images/imgi_136_our-gallery-19.jpg"
-              alt="Anupam Shiksha Niketan campus"
+              alt="Nirakar Jyoti Vidya Mandir Gullarpur campus"
               className="h-full w-full object-cover"
             />
           </div>

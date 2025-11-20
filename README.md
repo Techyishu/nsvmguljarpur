@@ -1,8 +1,8 @@
-# Anupam Shiksha Niketan - School Website
+# Nirakar Jyoti Vidya Mandir Gullarpur - School Website
 
 ## Project Overview
 
-This is the official website for Anupam Shiksha Niketan Sr. Sec. School, built with modern web technologies.
+This is the official website for Nirakar Jyoti Vidya Mandir Gullarpur, built with modern web technologies.
 
 ## How can I edit this code?
 
