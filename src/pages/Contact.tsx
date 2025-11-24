@@ -1,24 +1,12 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHero } from "@/components/PageHero";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Phone, Mail, MapPin, Clock, Send, MessageSquare } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Contact = () => {
-  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "We'll get back to you soon.",
-    });
-  };
 
   const contactInfo = [
     {
@@ -31,14 +19,14 @@ const Contact = () => {
     {
       icon: Phone,
       title: "Call Us",
-      content: "+91-90502 93002",
+      content: "+91-77770 77176",
       color: "text-blue-500",
       bg: "bg-blue-50"
     },
     {
       icon: Mail,
       title: "Email Us",
-      content: "nirakarjyotividyamandir@gmail.com",
+      content: "njvidyamandir@gmail.com",
       color: "text-orange-500",
       bg: "bg-orange-50"
     },
@@ -71,18 +59,17 @@ const Contact = () => {
           </div>
 
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
-
+            <div className="max-w-4xl mx-auto">
               {/* Contact Information */}
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
               >
-                <div className="mb-10">
+                <div className="mb-10 text-center">
                   <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">Let's Start a Conversation</h2>
-                  <p className="text-muted-foreground text-lg">
+                  <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                     Have questions about admissions, academics, or campus life? We're here to help you every step of the way.
                   </p>
                 </div>
@@ -97,9 +84,9 @@ const Contact = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="bg-card p-6 rounded-2xl border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group"
+                        className="bg-card p-6 rounded-2xl border border-border/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group text-center"
                       >
-                        <div className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                        <div className={`w-12 h-12 ${item.bg} rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform`}>
                           <Icon className={`h-6 w-6 ${item.color}`} />
                         </div>
                         <h3 className="font-heading font-bold text-lg text-primary mb-2">{item.title}</h3>
@@ -107,63 +94,6 @@ const Contact = () => {
                       </motion.div>
                     );
                   })}
-                </div>
-              </motion.div>
-
-              {/* Contact Form */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="bg-card rounded-3xl shadow-xl border border-border/50 p-8 md:p-10 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-full -mr-10 -mt-10"></div>
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-8">
-                    <div className="p-3 bg-primary/10 rounded-full text-primary">
-                      <MessageSquare className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-2xl font-heading font-bold">Send a Message</h3>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" placeholder="John Doe" required className="bg-background/50" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" placeholder="+91 98765 43210" type="tel" className="bg-background/50" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input id="email" placeholder="john@example.com" type="email" required className="bg-background/50" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
-                      <Input id="subject" placeholder="Admission Inquiry" required className="bg-background/50" />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
-                      <Textarea
-                        id="message"
-                        placeholder="How can we help you?"
-                        className="min-h-[120px] bg-background/50 resize-none"
-                        required
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
-                      <Send className="w-4 h-4 mr-2" /> Send Message
-                    </Button>
-                  </form>
                 </div>
               </motion.div>
             </div>

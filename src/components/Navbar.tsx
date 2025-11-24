@@ -46,10 +46,10 @@ export const Navbar = () => {
   return (
     <header
       className={clsx(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        "sticky top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled
           ? "glass py-2 shadow-lg"
-          : "bg-transparent py-4"
+          : "glass py-3"
       )}
     >
       <nav className="container mx-auto px-4">
@@ -64,15 +64,13 @@ export const Navbar = () => {
             </div>
             <div className="flex flex-col">
               <span className={clsx(
-                "text-lg sm:text-xl font-bold leading-none tracking-tight transition-colors duration-300",
-                scrolled ? "text-primary" : "text-white drop-shadow-md"
+                "text-lg sm:text-xl font-bold leading-none tracking-tight transition-colors duration-300 text-primary"
               )}>
                 Nirakar Jyoti
               </span>
               {!isMobile && (
                 <span className={clsx(
-                  "text-sm font-medium tracking-wide transition-colors duration-300",
-                  scrolled ? "text-muted-foreground" : "text-white/90 drop-shadow-sm"
+                  "text-sm font-medium tracking-wide transition-colors duration-300 text-muted-foreground"
                 )}>
                   Vidya Mandir
                 </span>
@@ -96,7 +94,7 @@ export const Navbar = () => {
                           "inline-flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300",
                           isGroupActive
                             ? "bg-white text-primary shadow-sm"
-                            : scrolled ? "text-foreground hover:bg-white/50" : "text-white hover:bg-white/20"
+                            : "text-foreground hover:bg-white/50"
                         )}
                       >
                         {item.name}
@@ -135,7 +133,7 @@ export const Navbar = () => {
                       "px-5 py-2 text-sm font-medium rounded-full transition-all duration-300 relative",
                       isActive
                         ? "bg-white text-primary shadow-sm font-semibold"
-                        : scrolled ? "text-foreground hover:bg-white/50" : "text-white hover:bg-white/20"
+                        : "text-foreground hover:bg-white/50"
                     )
                   }
                 >
@@ -156,8 +154,7 @@ export const Navbar = () => {
             variant="ghost"
             size="icon"
             className={clsx(
-              "lg:hidden transition-colors",
-              scrolled ? "text-primary" : "text-white hover:bg-white/20"
+              "lg:hidden transition-colors text-primary"
             )}
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle navigation menu"
@@ -236,7 +233,7 @@ export const Navbar = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </nav>
-    </header>
+      </nav >
+    </header >
   );
 };

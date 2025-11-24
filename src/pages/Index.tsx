@@ -6,12 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap,
-  Users,
-  BookOpen,
   Trophy,
   Sparkles,
   ArrowRight,
-  Heart,
   Brain,
   Loader2,
   Quote,
@@ -54,36 +51,7 @@ const BENTO_ITEMS = [
   },
 ];
 
-const LEARNING_PATH = [
-  {
-    title: "Foundational",
-    grade: "Nursery - II",
-    description: "Joyful discovery & language readiness.",
-    icon: Heart,
-    color: "bg-pink-50 text-pink-600",
-  },
-  {
-    title: "Preparatory",
-    grade: "III - V",
-    description: "Experiential projects & STEAM focus.",
-    icon: BookOpen,
-    color: "bg-blue-50 text-blue-600",
-  },
-  {
-    title: "Middle",
-    grade: "VI - VIII",
-    description: "Critical thinking & collaborative learning.",
-    icon: Users,
-    color: "bg-orange-50 text-orange-600",
-  },
-  {
-    title: "Secondary",
-    grade: "IX - XII",
-    description: "Career guidance & board excellence.",
-    icon: GraduationCap,
-    color: "bg-purple-50 text-purple-600",
-  },
-];
+
 
 const Index = () => {
   const activitiesQuery = usePublishedActivities();
@@ -220,43 +188,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Learning Path - Cards */}
-        <section className="py-20 md:py-32">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16 md:mb-24">
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-primary mb-6">
-                Your Child's Journey
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                From their first steps in education to their leap into the future, we stay present at every milestone.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-              {LEARNING_PATH.map((stage, index) => (
-                <motion.div
-                  key={stage.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative group"
-                >
-                  <div className="h-full bg-white border border-border/40 rounded-[2rem] p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group-hover:border-primary/20">
-                    <div className={clsx("w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110", stage.color)}>
-                      <stage.icon className="h-8 w-8" />
-                    </div>
-                    <div className="mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-slate-100 px-3 py-1 rounded-full">{stage.grade}</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-primary mb-3">{stage.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{stage.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Latest Happenings - Dark Mode Style */}
         <section className="py-20 md:py-32 bg-slate-900 text-white relative overflow-hidden">

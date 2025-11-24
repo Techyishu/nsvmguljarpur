@@ -1,45 +1,12 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PageHero } from "@/components/PageHero";
-import { GraduationCap, BookOpen, Calculator, FlaskConical, Palette, Trophy, Calendar, CheckCircle2, Globe } from "lucide-react";
+import { Palette, Trophy, Calendar, CheckCircle2, Globe } from "lucide-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 
 const Academics = () => {
-  const levels = [
-    {
-      title: "Primary School",
-      grade: "Nursery - V",
-      description: "Foundation years focusing on basic literacy, numeracy, and social skills development.",
-      icon: BookOpen,
-      color: "text-blue-500",
-      bg: "bg-blue-50",
-    },
-    {
-      title: "Junior School",
-      grade: "VI - VIII",
-      description: "Building on fundamentals with enhanced curriculum and skill development programs.",
-      icon: Calculator,
-      color: "text-green-500",
-      bg: "bg-green-50",
-    },
-    {
-      title: "Middle School",
-      grade: "IX - X",
-      description: "CBSE board preparation with comprehensive subject knowledge and exam strategies.",
-      icon: FlaskConical,
-      color: "text-purple-500",
-      bg: "bg-purple-50",
-    },
-    {
-      title: "Senior School",
-      grade: "XI - XII",
-      description: "Specialized streams (Science, Commerce, Arts) for career-focused education.",
-      icon: GraduationCap,
-      color: "text-orange-500",
-      bg: "bg-orange-50",
-    }
-  ];
+
 
   const features = [
     {
@@ -76,66 +43,7 @@ const Academics = () => {
           backgroundImage="/images/computer-lab.png"
         />
 
-        {/* Academic Levels */}
-        <section className="py-12 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-10 md:mb-16">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-primary mb-3 md:mb-4">Academic Structure</h2>
-                <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-                  A progressive curriculum designed to nurture students at every stage.
-                </p>
-              </motion.div>
-            </div>
 
-            <div className="grid sm:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
-              {levels.map((level, index) => {
-                const Icon = level.icon;
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group relative overflow-hidden bg-card border border-border/50 rounded-2xl md:rounded-3xl p-6 md:p-8 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-                  >
-                    <div className={clsx("absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 rounded-bl-full opacity-10 transition-transform group-hover:scale-150", level.bg.replace('50', '500'))}></div>
-
-                    <div className="relative z-10 flex flex-col h-full">
-                      <div className={clsx("w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6", level.bg)}>
-                        <Icon className={clsx("h-6 w-6 md:h-7 md:w-7", level.color)} />
-                      </div>
-
-                      <div className="mb-3 md:mb-4">
-                        <span className="inline-block px-2.5 py-0.5 md:px-3 md:py-1 rounded-full bg-secondary/10 text-secondary text-[10px] md:text-xs font-bold uppercase tracking-wider mb-2">
-                          {level.grade}
-                        </span>
-                        <h3 className="text-xl md:text-2xl font-heading font-bold text-primary">{level.title}</h3>
-                      </div>
-
-                      <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-5 md:mb-6 flex-grow">
-                        {level.description}
-                      </p>
-
-                      <div className="flex items-center text-primary font-semibold text-sm group/link cursor-pointer">
-                        <span>Learn more</span>
-                        <svg className="w-4 h-4 ml-2 transform transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
 
         {/* Academic Features */}
         <section className="py-12 md:py-20 bg-primary text-primary-foreground relative overflow-hidden">

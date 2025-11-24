@@ -35,10 +35,10 @@ export async function uploadImage(file: File, folder?: string): Promise<UploadRe
     'gif': 'image/gif',
   };
   
-  // Always use extension-based MIME type to ensure correctness
+  // Always use extension-based MIME type first
   let contentType = mimeTypes[fileExt] || 'image/jpeg';
   
-  // Only use file.type if it's a valid image MIME type
+  // Only use file.type if it's a valid image MIME type and matches the extension
   if (file.type && file.type.startsWith('image/') && mimeTypes[fileExt]) {
     // Verify the file.type matches the extension
     const expectedType = mimeTypes[fileExt];
@@ -46,6 +46,13 @@ export async function uploadImage(file: File, folder?: string): Promise<UploadRe
         (file.type === 'image/jpeg' && (fileExt === 'jpg' || fileExt === 'jpeg'))) {
       contentType = file.type;
     }
+  }
+  
+  // Never use invalid types like application/json or application/octet-stream
+  if (contentType === 'application/octet-stream' || 
+      contentType === 'application/json' || 
+      !contentType.startsWith('image/')) {
+    contentType = mimeTypes[fileExt] || 'image/jpeg';
   }
 
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -55,71 +62,23 @@ export async function uploadImage(file: File, folder?: string): Promise<UploadRe
   // Supabase Storage uses File.type to determine the MIME type, not just the contentType option
   // Always create a fresh File from the original data with explicit type
   
-  let uploadData: File;
+  let arrayBufferForUpload: ArrayBuffer;
   
   try {
     // Try compression first
     const compressed = await imageCompression(file, COMPRESSION_OPTIONS);
     
     if (compressed.size > 0 && compressed.size <= file.size) {
-      // Compression succeeded - create File from compressed Blob with explicit type
-      // Read as ArrayBuffer to ensure we have raw data, then create File with correct type
-      const arrayBuffer = await compressed.arrayBuffer();
-      uploadData = new File([arrayBuffer], fileName, { 
-        type: contentType,
-        lastModified: file.lastModified || Date.now()
-      });
+      // Compression succeeded - use compressed data
+      arrayBufferForUpload = await compressed.arrayBuffer();
     } else {
       // Compression didn't help, use original file
-      const arrayBuffer = await file.arrayBuffer();
-      uploadData = new File([arrayBuffer], fileName, { 
-        type: contentType,
-        lastModified: file.lastModified || Date.now()
-      });
+      arrayBufferForUpload = await file.arrayBuffer();
     }
   } catch (error) {
     console.warn("Image compression failed, uploading original file", error);
-    // Compression failed, use original file but ensure correct type
-    const arrayBuffer = await file.arrayBuffer();
-    uploadData = new File([arrayBuffer], fileName, { 
-      type: contentType,
-      lastModified: file.lastModified || Date.now()
-    });
-  }
-
-  // CRITICAL VERIFICATION: Ensure File.type is exactly what we expect
-  // If it's not, recreate it one more time
-  if (uploadData.type !== contentType) {
-    console.error('❌ File type mismatch detected!', {
-      expected: contentType,
-      actual: uploadData.type,
-      fileExt: fileExt,
-      fileName: fileName
-    });
-    
-    // Force recreate with correct type
-    const arrayBuffer = await uploadData.arrayBuffer();
-    uploadData = new File([arrayBuffer], fileName, { 
-      type: contentType,
-      lastModified: file.lastModified || Date.now()
-    });
-    
-    // Final check - if still wrong, something is seriously wrong
-    if (uploadData.type !== contentType) {
-      throw new Error(`Failed to set correct file type. Expected: ${contentType}, Got: ${uploadData.type}`);
-    }
-  }
-
-  // Final verification before upload
-  if (uploadData.type !== contentType) {
-    console.error('❌ CRITICAL: File type is still incorrect before upload!', {
-      expected: contentType,
-      actual: uploadData.type,
-      fileExt: fileExt,
-      fileName: fileName,
-      filePath: filePath
-    });
-    throw new Error(`File type mismatch: Expected ${contentType}, but File.type is ${uploadData.type}`);
+    // Compression failed, use original file
+    arrayBufferForUpload = await file.arrayBuffer();
   }
 
   console.log('📤 Uploading image:', {
@@ -127,43 +86,10 @@ export async function uploadImage(file: File, folder?: string): Promise<UploadRe
     uploadFileName: fileName,
     fileExt: fileExt,
     contentType: contentType,
-    fileType: uploadData.type,
-    fileSize: uploadData.size,
+    originalFileType: file.type,
+    fileSize: arrayBufferForUpload.byteLength,
     filePath: filePath,
-    verified: uploadData.type === contentType,
-    typeMatch: uploadData.type === contentType ? '✅' : '❌',
   });
-
-  // Ensure uploadData is a proper File object with correct type
-  if (!(uploadData instanceof File)) {
-    throw new Error('uploadData must be a File object');
-  }
-
-  // Double-check the type one last time
-  if (uploadData.type !== contentType) {
-    console.error('❌ FINAL CHECK FAILED: File type is incorrect right before upload!', {
-      expected: contentType,
-      actual: uploadData.type,
-      filePath: filePath
-    });
-    // Last resort: recreate from ArrayBuffer
-    const finalArrayBuffer = await uploadData.arrayBuffer();
-    uploadData = new File([finalArrayBuffer], fileName, {
-      type: contentType,
-      lastModified: file.lastModified || Date.now()
-    });
-  }
-
-  console.log('🚀 Final upload check:', {
-    fileType: uploadData.type,
-    expectedType: contentType,
-    match: uploadData.type === contentType,
-    isFile: uploadData instanceof File,
-  });
-
-  // CRITICAL FIX: Upload ArrayBuffer directly instead of File object
-  // Supabase Storage sometimes misinterprets File objects, but ArrayBuffer with explicit contentType works correctly
-  const arrayBufferForUpload = await uploadData.arrayBuffer();
 
   console.log('📦 Uploading ArrayBuffer:', {
     arrayBufferSize: arrayBufferForUpload.byteLength,
@@ -182,14 +108,13 @@ export async function uploadImage(file: File, folder?: string): Promise<UploadRe
       message: error.message,
       statusCode: (error as any).statusCode,
       error: error,
-      fileSize: uploadData.size,
-      fileType: uploadData.type,
+      fileSize: arrayBufferForUpload.byteLength,
+      originalFileType: file.type,
       expectedContentType: contentType,
-      actualFileType: uploadData.type,
       contentType: contentType,
       fileName: file.name,
       filePath: filePath,
-      verified: uploadData.type === contentType,
+      fileExt: fileExt,
     });
     throw new Error(`Upload failed: ${error.message}`);
   }

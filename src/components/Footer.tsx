@@ -126,16 +126,16 @@ export const Footer = () => {
                 <div className="p-2 rounded-lg bg-white/5 group-hover:bg-secondary/20 transition-colors shrink-0">
                   <Phone className="h-4 w-4 text-secondary" />
                 </div>
-                <a href="tel:+919050293002" className="hover:text-white transition-colors">
-                  +91-90502 93002
+                <a href="tel:+917777077176" className="hover:text-white transition-colors">
+                  +91-77770 77176
                 </a>
               </div>
               <div className="flex items-center gap-3 text-sm text-white/70 group">
                 <div className="p-2 rounded-lg bg-white/5 group-hover:bg-secondary/20 transition-colors shrink-0">
                   <Mail className="h-4 w-4 text-secondary" />
                 </div>
-                <a href="mailto:nirakarjyotividyamandir@gmail.com" className="hover:text-white transition-colors break-all">
-                  nirakarjyotividyamandir@gmail.com
+                <a href="mailto:njvidyamandir@gmail.com" className="hover:text-white transition-colors break-all">
+                  njvidyamandir@gmail.com
                 </a>
               </div>
             </div>

@@ -27,7 +27,7 @@ export async function uploadMusic(file: File): Promise<MusicUploadResult> {
   // Upload directly to root of bucket (not in a subfolder)
   const filePath = fileName;
 
-  // Determine content type more accurately
+  // Determine content type from file extension first (more reliable)
   // Always use extension-based MIME type to ensure consistency
   const mimeTypes: Record<string, string> = {
     'mp3': 'audio/mpeg',
@@ -40,26 +40,109 @@ export async function uploadMusic(file: File): Promise<MusicUploadResult> {
     'opus': 'audio/opus',
   };
   
-  // Use extension-based MIME type first, fallback to file.type if not found
-  let contentType = mimeTypes[fileExt] || file.type;
+  // Always use extension-based MIME type first
+  let contentType = mimeTypes[fileExt] || 'audio/mpeg';
   
-  // If still no valid content type, use audio/mpeg as default for MP3
-  if (!contentType || contentType === 'application/octet-stream' || contentType === 'application/json') {
+  // Only use file.type if it's a valid audio MIME type and matches the extension
+  if (file.type && file.type.startsWith('audio/') && mimeTypes[fileExt]) {
+    const expectedType = mimeTypes[fileExt];
+    if (file.type === expectedType || 
+        (file.type === 'audio/mpeg' && fileExt === 'mp3') ||
+        (file.type === 'audio/mp3' && fileExt === 'mp3')) {
+      contentType = file.type;
+    }
+  }
+  
+  // Never use invalid types like application/json or application/octet-stream
+  if (contentType === 'application/octet-stream' || 
+      contentType === 'application/json' || 
+      !contentType.startsWith('audio/')) {
     contentType = mimeTypes[fileExt] || 'audio/mpeg';
   }
 
-  // Ensure we're uploading a proper File/Blob object
-  // Create a new File object with explicit content type if needed
-  let fileToUpload: File | Blob = file;
-  if (file.type !== contentType) {
-    // If the file's type doesn't match, create a new File with correct type
-    fileToUpload = new File([file], file.name, { type: contentType });
+  // Read the original file as ArrayBuffer to preserve the actual file data
+  const arrayBuffer = await file.arrayBuffer();
+  
+  // Create a Blob with the correct MIME type
+  const blob = new Blob([arrayBuffer], { type: contentType });
+  
+  // Create a File object from the Blob with the correct name and type
+  const fileToUpload = new File([blob], fileName, {
+    type: contentType,
+    lastModified: file.lastModified || Date.now()
+  });
+
+  // Final verification - ensure File type matches expected content type
+  if (fileToUpload.type !== contentType) {
+    console.warn('⚠️ File type mismatch detected, recreating with correct type');
+    // Recreate with explicit type
+    const correctedBlob = new Blob([arrayBuffer], { type: contentType });
+    const correctedFile = new File([correctedBlob], fileName, {
+      type: contentType,
+      lastModified: file.lastModified || Date.now()
+    });
+    
+    console.log('📤 Uploading music (corrected):', {
+      originalFileName: file.name,
+      uploadFileName: fileName,
+      fileExt: fileExt,
+      contentType: contentType,
+      fileToUploadType: correctedFile.type,
+      fileSize: file.size,
+      filePath: filePath,
+    });
+
+    // Upload without explicit contentType to let Supabase detect from File.type
+    const { data, error } = await supabase.storage.from("music").upload(filePath, correctedFile, {
+      cacheControl: "3600",
+      upsert: false,
+      // Don't pass contentType - let Supabase use File.type instead
+    });
+    
+    if (error) {
+      console.error("Upload error details:", {
+        message: error.message,
+        statusCode: (error as any).statusCode,
+        error: error,
+        fileSize: file.size,
+        fileType: file.type,
+        contentType: contentType,
+        fileName: file.name,
+      });
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    
+    if (!data) {
+      throw new Error("Upload failed: No data returned");
+    }
+    
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from("music").getPublicUrl(data.path);
+    
+    return {
+      url: publicUrl,
+      path: data.path,
+    };
   }
 
+  console.log('📤 Uploading music:', {
+    originalFileName: file.name,
+    uploadFileName: fileName,
+    fileExt: fileExt,
+    contentType: contentType,
+    originalFileType: file.type,
+    fileToUploadType: fileToUpload.type,
+    fileSize: file.size,
+    filePath: filePath,
+  });
+
+  // Upload without explicit contentType to let Supabase detect from File.type
+  // This avoids conflicts with MIME type detection
   const { data, error } = await supabase.storage.from("music").upload(filePath, fileToUpload, {
     cacheControl: "3600",
     upsert: false,
-    contentType: contentType,
+    // Don't pass contentType - let Supabase use File.type instead
   });
 
   if (error) {
